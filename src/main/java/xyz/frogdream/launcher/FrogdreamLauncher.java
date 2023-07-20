@@ -1,33 +1,18 @@
 package xyz.frogdream.launcher;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.FontFormatException;
-import java.awt.Graphics2D;
-import java.awt.GraphicsEnvironment;
-import java.awt.Image;
-import java.awt.LayoutManager;
-import java.awt.Toolkit;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import com.google.gson.Gson;
+import xyz.frogdream.launcher.MainScreen.MainScreenInitializer;
+
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.awt.image.ImageObserver;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Objects;
-import javax.swing.*;
-import javax.swing.border.Border;
-import xyz.frogdream.launcher.MainScreen.MainScreenInitializer;
 
 public class FrogdreamLauncher extends JFrame {
     private static boolean isTextChanged = false;
@@ -37,12 +22,19 @@ public class FrogdreamLauncher extends JFrame {
 
     FrogdreamLauncher() {
         this.center();
-        ImageIcon logo = new ImageIcon((URL)Objects.requireNonNull(this.getClass().getResource("/Images/logo.png")));
+        ImageIcon logo = new ImageIcon(Objects.requireNonNull(this.getClass().getResource("/Images/logo.png")));
         JLabel logoLabel = new JLabel(logo);
         Dimension size = logoLabel.getPreferredSize();
         logoLabel.setBounds(300, 203, size.width, size.height);
         this.add(logoLabel);
+
+        this.setIconImage(
+                new ImageIcon(Objects.requireNonNull(getClass().getResource("/Images/frogdream.ico"))).getImage()
+        );
+
     }
+
+    //
 
     public void center() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -55,65 +47,67 @@ public class FrogdreamLauncher extends JFrame {
         this.setLocation(x, y);
     }
 
+
+    public static Config loadConfig() {
+        String filePath = folderPath + "/autofill.json";
+        String text;
+        try {
+            text = Files.readString(Path.of(filePath));
+        } catch (IOException e) {
+            text = "{}";
+        }
+        return new Gson().fromJson(text, Config.class);
+    }
+
+    public static void saveConfig(Config config) {
+        String filePath = folderPath + "/autofill.json";
+        try {
+            Files.writeString(Path.of(filePath), new Gson().toJson(config, Config.class));
+        } catch (IOException e) {
+            System.err.println("Failed to save cfg");
+        }
+    }
+
+    static String folderPath = System.getenv("LOCALAPPDATA") + "/FrogDreamCache";
+    public static Config config;
     public static void main(String[] args) {
         display = new FrogdreamLauncher();
-        String folderPath = System.getenv("LOCALAPPDATA") + "/FrogDreamCache";
+
         File folder = new File(folderPath);
-        if (!folder.exists()) {
-            if (folder.mkdirs()) {
-            } else {
-                return;
-            }
+        if (!folder.exists()) if (!folder.mkdirs()) {
+            return;
         }
-        String filePath = folderPath + "/autofill.txt";
-        File file = new File(filePath);
-        if (file.exists()) {
+        config = loadConfig();
+
+        if (config.nickName != null) {
             System.out.println("Сработало авто-заполнение, переход на главный экран.");
 
-            try {
-                BufferedReader reader = new BufferedReader(new FileReader(filePath));
 
-                try {
-                    StringBuilder content = new StringBuilder();
+            String enteredNickname = config.nickName;
+            MainScreen mainscreen = new MainScreen();
+            MainScreenInitializer.initialize(mainscreen, enteredNickname);
+            mainscreen.setVisible(true);
 
-                    while(true) {
-                        String line;
-                        if ((line = reader.readLine()) == null) {
-                            String enteredNickname = content.toString();
-                            MainScreen mainscreen = new MainScreen();
-                            MainScreenInitializer.initialize(mainscreen, enteredNickname);
-                            mainscreen.setVisible(true);
-                            display.setVisible(false);
-                            display.dispose();
-                            break;
-                        }
+            display.setVisible(false);
+            display.dispose();
 
-                        content.append(line);
-                    }
-                } catch (Throwable var18) {
-                    try {
-                        reader.close();
-                    } catch (Throwable var15) {
-                        var18.addSuppressed(var15);
-                    }
 
-                    throw var18;
-                }
+            if (Objects.equals(enteredNickname, "cubelius") || Objects.equals(enteredNickname, "Kolyakot33") || Objects.equals(enteredNickname, "Redmor")) {
 
-                reader.close();
-                return;
-            } catch (IOException var19) {
-                var19.printStackTrace();
+                JOptionPane.showMessageDialog(null, "Ныт.");
+                mainscreen.dispose();
             }
+            return;
+
         } else {
             System.out.println("Ошибка в авто-заполнении.");
         }
 
-        display.setDefaultCloseOperation(3);
+        display.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         display.setTitle("Frogdream Launcher");
         display.setSize(1022, 600); // def: w: 1022 h: 589
         display.getContentPane().setBackground(new Color(12, 12, 12));
-        display.setLayout((LayoutManager)null);
+        display.setLayout(null);
         JLabel launcherText = new JLabel("Launcher");
         launcherText.setForeground(new Color(154, 189, 57));
         InputStream is = FrogdreamLauncher.class.getResourceAsStream("/Fonts/GolosText-Bold.ttf");
@@ -147,7 +141,7 @@ public class FrogdreamLauncher extends JFrame {
         Font sizedNicknameFont = nicknameFont.deriveFont(16.0F);
         nickname.setFont(sizedNicknameFont);
         nickname.setText("Ник");
-        nickname.setBorder((Border)null);
+        nickname.setBorder(null);
         nickname.setOpaque(false);
 
         Color defaultTextColor = new Color(100, 101, 101);
@@ -163,11 +157,11 @@ public class FrogdreamLauncher extends JFrame {
 
             }
         });
-        ImageIcon rectangle = new ImageIcon((URL)Objects.requireNonNull(FrogdreamLauncher.class.getResource("/Images/rectangle.png")));
+        ImageIcon rectangle = new ImageIcon(Objects.requireNonNull(FrogdreamLauncher.class.getResource("/Images/rectangle.png")));
         JLabel rectangleLabel = new JLabel(rectangle);
         Dimension rectangleSize = rectangleLabel.getPreferredSize();
         rectangleLabel.setBounds(293, 380, rectangleSize.width, rectangleSize.height);
-        final ImageIcon enter = new ImageIcon((URL)Objects.requireNonNull(FrogdreamLauncher.class.getResource("/Images/enter.png")));
+        final ImageIcon enter = new ImageIcon(Objects.requireNonNull(FrogdreamLauncher.class.getResource("/Images/enter.png")));
         enterLabel = new JLabel(enter);
         enterLabel.setBounds(704, 390, 30, 30);
         enterLabel.addMouseListener(new MouseAdapter() {
@@ -202,7 +196,10 @@ public class FrogdreamLauncher extends JFrame {
     private static void performAction() {
         String enteredNickname = nickname.getText();
         if (enteredNickname.equals("cubelius") || enteredNickname.equals("Redmor") || enteredNickname.equals("Kolyakot33")) {
+            config.nickName = null;
+            saveConfig(config);
             ImageApp.main();
+
         }
 
         Database.main(enteredNickname);
@@ -216,30 +213,15 @@ public class FrogdreamLauncher extends JFrame {
         String folderPath = System.getenv("LOCALAPPDATA") + "/FrogDreamCache";
 
         String filePath = folderPath + "/autofill.txt";
-        try {
-            BufferedWriter writer = new BufferedWriter(new FileWriter(filePath));
-            try {
-                writer.write(enteredNickname);
-                System.out.println("Авто-заполнение ника включено.");
-            } catch (Throwable var6) {
-                try {
-                    writer.close();
-                } catch (Throwable var5) {
-                    var6.addSuppressed(var5);
-                }
-                throw var6;
-            }
-            writer.close();
-        } catch (IOException var7) {
-            var7.printStackTrace();
-        }
+        config.nickName = enteredNickname;
+        saveConfig(config);
     }
 
     private static ImageIcon getBrighterIcon(ImageIcon icon) {
         Image img = icon.getImage();
-        BufferedImage bufferedImage = new BufferedImage(img.getWidth((ImageObserver)null), img.getHeight((ImageObserver)null), 2);
+        BufferedImage bufferedImage = new BufferedImage(img.getWidth(null), img.getHeight(null), 2);
         Graphics2D graphics = bufferedImage.createGraphics();
-        graphics.drawImage(img, 0, 0, (ImageObserver)null);
+        graphics.drawImage(img, 0, 0, null);
         graphics.dispose();
 
         for(int y = 0; y < bufferedImage.getHeight(); ++y) {

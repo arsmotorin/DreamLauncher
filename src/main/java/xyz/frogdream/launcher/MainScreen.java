@@ -349,13 +349,14 @@ public class MainScreen extends JFrame {
                     playTextLabel.setText("Загрузка...");
                     playTextLabel.paintImmediately(playTextLabel.getVisibleRect());
 
+                    Download.launch(enteredNickname);
+
+                    // After launch
+                    mainScreen.dispose();
+
                     CompletableFuture.runAsync(() -> {
                         Icon brighterIcon = getBrighterIcon(play, currentBrightness);
                         playLabel.setIcon(brighterIcon);
-                        Download.launch(enteredNickname);
-
-                        // After launch
-                        mainScreen.dispose();
                     });
                 }
             });
@@ -381,19 +382,12 @@ public class MainScreen extends JFrame {
                 }
 
                 public void mouseClicked(MouseEvent e) {
-                    String folderPath = System.getenv("LOCALAPPDATA") + "/FrogDreamCache";
-                    String filePath = folderPath + "/autofill.txt";
-                    File file = new File(filePath);
-                    if (file.exists()) {
-                        if (file.delete()) {
-                            FrogdreamLauncher launcher = new FrogdreamLauncher();
-                            launcher.center();
-                            FrogdreamLauncher.main(new String[0]);
-                            System.out.println("Файл авто-заполнения ника успешно удалён.");
-                        } else {
-                            System.out.println("Ошибка в удалении файла авто-заполнения ника.");
-                        }
-                    }
+                    FrogdreamLauncher.config.nickName = null;
+                    FrogdreamLauncher.saveConfig(FrogdreamLauncher.config);
+                    FrogdreamLauncher launcher = new FrogdreamLauncher();
+                    launcher.center();
+                    FrogdreamLauncher.main(new String[0]);
+                    System.out.println("Файл авто-заполнения ника успешно удалён.");
 
                     mainScreen.dispose();
                 }
