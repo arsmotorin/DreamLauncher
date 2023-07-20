@@ -23,6 +23,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
@@ -169,7 +170,7 @@ public class MainScreen extends JFrame {
         public static void initialize(final MainScreen mainScreen, final String enteredNickname) {
             mainScreen.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             mainScreen.setTitle("Frogdream Launcher");
-            mainScreen.setSize(1022, 589);
+            mainScreen.setSize(1022, 600); //
             mainScreen.getContentPane().setBackground(new Color(12, 12, 12));
             mainScreen.setLayout(null);
             mainScreen.setResizable(false);
@@ -320,26 +321,42 @@ public class MainScreen extends JFrame {
             playLabel.setBounds(279, 213, 198, 50);
             mainScreen.add(playLabel);
             playLabel.addMouseListener(new MouseAdapter() {
+                private float currentBrightness = 1.1F;
+                private boolean clicked = false;
+
                 public void mouseEntered(MouseEvent e) {
                     mainScreen.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-                    playLabel.setIcon(MainScreen.getBrighterIcon(play, 1.1F));
+                    if (!clicked) {
+                        playLabel.setIcon(MainScreen.getBrighterIcon(play, currentBrightness));
+                    }
                 }
 
+                // Monitoring
                 public void mouseExited(MouseEvent e) {
                     mainScreen.setCursor(Cursor.getDefaultCursor());
-                    playLabel.setIcon(play);
+                    if (!clicked) {
+                        playLabel.setIcon(play);
+                    } else if (currentBrightness == 0.8F) {
+                        playLabel.setIcon(MainScreen.getBrighterIcon(play, currentBrightness));
+                    }
                 }
 
                 public void mouseClicked(MouseEvent e) {
+                    currentBrightness = 0.8F;
+                    clicked = true;
 
-                    //TODO: Start
-
-                    // IMMEDIATE CALL
+                    // TODO: Start
                     playTextLabel.setText("Загрузка...");
                     playTextLabel.paintImmediately(playTextLabel.getVisibleRect());
-                    Download.launch(enteredNickname);
-                    mainScreen.dispose();
 
+                    CompletableFuture.runAsync(() -> {
+                        Icon brighterIcon = getBrighterIcon(play, currentBrightness);
+                        playLabel.setIcon(brighterIcon);
+                        Download.launch(enteredNickname);
+
+                        // After launch
+                        mainScreen.dispose();
+                    });
                 }
             });
             Font sizedFont = font.deriveFont(26.0F);
@@ -408,6 +425,7 @@ public class MainScreen extends JFrame {
                 throw new RuntimeException(var54);
             }
 
+            // Nickname
             nicknameLabel = new JLabel(enteredNickname);
             nicknameLabel.setForeground(defaultTextColor);
             Font sizedFontOfNickname = font2.deriveFont(16.0F);
@@ -415,6 +433,7 @@ public class MainScreen extends JFrame {
             nicknameLabel.setBounds(90, 148, 500, 16);
             mainScreen.add(nicknameLabel);
 
+            // Go2/3 for pictures
             ImageIcon go2 = new ImageIcon(Objects.requireNonNull(MainScreenInitializer.class.getResource("/Images/go.png")));
             JLabel go2Label = new JLabel(go2);
             go2Label.setBounds(960, 243, 10, 18);
@@ -424,6 +443,7 @@ public class MainScreen extends JFrame {
             go3Label.setBounds(960, 508, 10, 18);
             mainScreen.add(go3Label);
 
+            // News
             JLabel newsTextLabel = new JLabel("Последние новости");
             newsTextLabel.setForeground(defaultTextColor2);
             Font sizedFontNewsTextLabel = font3.deriveFont(16.0F);
@@ -431,6 +451,7 @@ public class MainScreen extends JFrame {
             newsTextLabel.setBounds(793, 200, 1000, 100);
             mainScreen.add(newsTextLabel);
 
+            // Map
             JLabel mapTextLabel = new JLabel("Карта");
             mapTextLabel.setForeground(defaultTextColor2);
             Font sizedMapTextLabel = font3.deriveFont(16.0F);
@@ -438,18 +459,21 @@ public class MainScreen extends JFrame {
             mapTextLabel.setBounds(902, 508, 1000, 16);
             mainScreen.add(mapTextLabel);
 
+            // Rectangle
             ImageIcon rectangle = new ImageIcon(Objects.requireNonNull(MainScreenInitializer.class.getResource("/Images/rectangle.png")));
             JLabel rectangleLabel = new JLabel(rectangle);
             Dimension rectangleSize = rectangleLabel.getPreferredSize();
             rectangleLabel.setBounds(28, 131, rectangleSize.width, rectangleSize.height);
             mainScreen.add(rectangleLabel);
 
+            // Divider
             ImageIcon divider = new ImageIcon(Objects.requireNonNull(MainScreenInitializer.class.getResource("/Images/divider.png")));
             JLabel dividerLabel = new JLabel(divider);
             Dimension dividerSize = dividerLabel.getPreferredSize();
             dividerLabel.setBounds(512, 0, dividerSize.width, dividerSize.height);
             mainScreen.add(dividerLabel);
 
+            // News link
             ImageIcon news = new ImageIcon(Objects.requireNonNull(MainScreenInitializer.class.getResource("/Images/news.png")));
             JLabel newsLabel = new JLabel(news);
             newsLabel.setBounds(542, 24, 449, 250);
@@ -465,11 +489,13 @@ public class MainScreen extends JFrame {
             });
             mainScreen.add(newsLabel);
 
+            // Map link
             ImageIcon map = new ImageIcon(Objects.requireNonNull(MainScreenInitializer.class.getResource("/Images/map.png")));
             JLabel mapLabel = new JLabel(map);
             mapLabel.setBounds(542, 291, 449, 250);
             mainScreen.add(mapLabel);
 
+            // Animation and cursor
             MainScreen.animation(go3Label, mapTextLabel, mapLabel);
             mapLabel.addMouseListener(new MouseAdapter() {
                 public void mouseEntered(MouseEvent e) {
@@ -480,6 +506,8 @@ public class MainScreen extends JFrame {
                     mainScreen.setCursor(Cursor.getDefaultCursor());
                 }
             });
+
+            // Buttons
             final ImageIcon folder = new ImageIcon(Objects.requireNonNull(MainScreenInitializer.class.getResource("/Images/folder.png")));
             final JLabel folderLabel = new JLabel(folder);
             folderLabel.setBounds(31, 517, 24, 24);
@@ -503,6 +531,7 @@ public class MainScreen extends JFrame {
         }
     }
 
+    // Animation
     private static void animation(JLabel go3Label, JLabel mapTextLabel, JLabel mapLabel) {
         int initialMapLabelY = mapLabel.getY();
         int initialMapTextLabelY = mapTextLabel.getY();
@@ -622,6 +651,7 @@ public class MainScreen extends JFrame {
         });
     }
 
+    // Bright
     private static ImageIcon getBrighterIcon(ImageIcon icon, float brightness) {
         Image img = icon.getImage();
         BufferedImage bufferedImage = new BufferedImage(

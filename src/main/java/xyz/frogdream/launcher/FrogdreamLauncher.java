@@ -111,7 +111,7 @@ public class FrogdreamLauncher extends JFrame {
 
         display.setDefaultCloseOperation(3);
         display.setTitle("Frogdream Launcher");
-        display.setSize(1022, 589);
+        display.setSize(1022, 600); // def: w: 1022 h: 589
         display.getContentPane().setBackground(new Color(12, 12, 12));
         display.setLayout((LayoutManager)null);
         JLabel launcherText = new JLabel("Launcher");
