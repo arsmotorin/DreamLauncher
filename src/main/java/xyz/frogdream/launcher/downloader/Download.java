@@ -26,6 +26,8 @@ import java.net.http.HttpResponse;
 import java.util.Collections;
 import java.util.concurrent.ExecutionException;
 
+// Don't change any piece of this code, but you can add more args in ARGS.
+
 public class Download {
     static MinecraftDirectory dir = new MinecraftDirectory(System.getenv("LOCALAPPDATA") + "/.FrogDream");
     static String PREFIX = "https://new.frogdream.xyz/launcher/";

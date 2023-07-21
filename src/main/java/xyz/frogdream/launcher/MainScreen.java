@@ -32,25 +32,44 @@ import org.to2mbn.jmccc.internal.org.json.JSONException;
 import org.to2mbn.jmccc.internal.org.json.JSONObject;
 import xyz.frogdream.launcher.downloader.Download;
 
+// This is a main page of launcher. There are functional buttons, images
+// (news and map) and game launch.
+
+// Obey rules and features of design, that cubelius put in /design folder,
+// cause this class have main design parts of code.
+
+// Obey rule of comments. Write comments only on English.
+
 public class MainScreen extends JFrame {
     MainScreen() {
+
+        // Fixed screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         int screenWidth = screenSize.width;
         int screenHeight = screenSize.height;
         int frameWidth = this.getWidth();
         int frameHeight = this.getHeight();
+
         int x = (screenWidth - frameWidth) / 7;
         int y = (screenHeight - frameHeight) / 7;
         this.setLocation(x, y);
 
+        // Check for updates
         this.checkGithubRelease();
     }
 
     private void checkGithubRelease() {
 
-        // Version changing
-        // DON'T TOUCH THIS PIECE OF CODE!!!
+        // Version changing. Change version only like that: v1.0.1, v1.1.4, etc. All pull requests
+
+        // v1. - main version
+        // v1.0 - just version with smth minor changes
+        // v1.0.1 - version with bug fixes
+
+        // that have bad type of version will be declined.
+
         String currentVersion = "v1.0.0";
+
         MainScreen.GithubReleaseChecker releaseChecker = new MainScreen.GithubReleaseChecker();
         releaseChecker.checkGithubRelease("Frogdream", "Launcher", currentVersion);
     }
@@ -85,7 +104,6 @@ public class MainScreen extends JFrame {
             throw new RuntimeException(var4);
         }
     }
-
 
     // GitHub release checker
     public static class GithubReleaseChecker {
@@ -134,6 +152,7 @@ public class MainScreen extends JFrame {
 
         }
 
+        // Ignore -alpha tags and "v"
         private boolean isNewerVersion(String newVersion, String currentVersion) {
             newVersion = newVersion.replaceAll("^(v|-alpha)", "");
             currentVersion = currentVersion.replaceAll("^(v|-alpha)", "");
@@ -141,6 +160,7 @@ public class MainScreen extends JFrame {
             String[] currentVersionParts = currentVersion.split("\\.");
             int minLength = Math.min(newVersionParts.length, currentVersionParts.length);
 
+            // Old/New version check
             for(int i = 0; i < minLength; ++i) {
                 int newPart = this.parseVersionPart(newVersionParts[i]);
                 int currentPart = this.parseVersionPart(currentVersionParts[i]);

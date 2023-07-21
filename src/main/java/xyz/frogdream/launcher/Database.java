@@ -1,5 +1,7 @@
 package xyz.frogdream.launcher;
 
+// Fuck for what this code?
+
 public class Database {
     public static boolean statusOfKey;
 

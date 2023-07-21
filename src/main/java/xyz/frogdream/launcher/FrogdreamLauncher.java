@@ -14,6 +14,9 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
+// Welcome to Frogdream Launcher. And no, it's not the main code.
+// Enter into MainScreen if you want to see main code.
+
 public class FrogdreamLauncher extends JFrame {
     private static boolean isTextChanged = false;
     private static JLabel enterLabel;
@@ -28,13 +31,13 @@ public class FrogdreamLauncher extends JFrame {
         logoLabel.setBounds(300, 203, size.width, size.height);
         this.add(logoLabel);
 
+        // Icon (?)
+        // This code not working on Mac
         this.setIconImage(
                 new ImageIcon(Objects.requireNonNull(getClass().getResource("/Images/frogdream.ico"))).getImage()
         );
 
     }
-
-    //
 
     public void center() {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -47,7 +50,7 @@ public class FrogdreamLauncher extends JFrame {
         this.setLocation(x, y);
     }
 
-
+    // Autofill nick
     public static Config loadConfig() {
         String filePath = folderPath + "/autofill.json";
         String text;
@@ -105,7 +108,7 @@ public class FrogdreamLauncher extends JFrame {
 
         display.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         display.setTitle("Frogdream Launcher");
-        display.setSize(1022, 600); // def: w: 1022 h: 589
+        display.setSize(1022, 600);
         display.getContentPane().setBackground(new Color(12, 12, 12));
         display.setLayout(null);
         JLabel launcherText = new JLabel("Launcher");
@@ -193,14 +196,9 @@ public class FrogdreamLauncher extends JFrame {
         display.setResizable(false);
     }
 
+    // Nickname check
     private static void performAction() {
         String enteredNickname = nickname.getText();
-        if (enteredNickname.equals("cubelius") || enteredNickname.equals("Redmor") || enteredNickname.equals("Kolyakot33")) {
-            config.nickName = null;
-            saveConfig(config);
-            ImageApp.main();
-
-        }
 
         Database.main(enteredNickname);
         if (Database.statusOfKey) {
@@ -209,14 +207,11 @@ public class FrogdreamLauncher extends JFrame {
             mainscreen.setVisible(true);
             display.setVisible(false);
         }
-
-        String folderPath = System.getenv("LOCALAPPDATA") + "/FrogDreamCache";
-
-        String filePath = folderPath + "/autofill.txt";
         config.nickName = enteredNickname;
         saveConfig(config);
     }
 
+    // Bright
     private static ImageIcon getBrighterIcon(ImageIcon icon) {
         Image img = icon.getImage();
         BufferedImage bufferedImage = new BufferedImage(img.getWidth(null), img.getHeight(null), 2);
