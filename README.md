@@ -1,2 +1,1 @@
-# Frogdream old project
-Frogdream launcher.
+# Dream Launcher
