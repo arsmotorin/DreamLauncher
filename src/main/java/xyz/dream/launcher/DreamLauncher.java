@@ -12,24 +12,32 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class DreamLauncher extends JFrame {
-    static boolean isTextChanged = false;
+    private static final AtomicBoolean isTextChanged = new AtomicBoolean(false);
     private static JLabel enterLabel;
-    static JTextField nickname;
-    static DreamLauncher display;
-    static String folderPath;
-    static Config config;
+    private static JTextField nickname;
+    private static DreamLauncher display;
+    private static String folderPath;
+    private static Config config;
+    private static final Color NICKNAME_COLOR = new Color(100, 101, 101);
+    private static final Color ERROR_COLOR = new Color(222, 45, 56);
+    private static final Color LAUNCHER_COLOR = new Color(116, 168, 50);
+    private static final Color BACKGROUND_COLOR = new Color(12, 12, 12);
+    private static final String DEFAULT_NICKNAME_TEXT = "Nickname";
+    private static final String ERROR_NICKNAME_TEXT = "Incorrect nickname!";
+    private static final int WINDOW_WIDTH = 1022;
+    private static final int WINDOW_HEIGHT = 600;
 
     static {
-        folderPath = System.getenv("LOCALAPPDATA") + "/FrogDreamCache";
-        if (System.getProperty("os.name").toLowerCase().contains("mac")) {
-            folderPath = System.getProperty("user.home") + "/Library/FrogDreamCache";
-        }
+        folderPath = System.getProperty("os.name").toLowerCase().contains("mac")
+                ? System.getProperty("user.home") + "/Library/.DreamCache"
+                : System.getenv("LOCALAPPDATA") + "/.DreamCache";
     }
 
     public static class Config {
-        public String nickName;
+        private String nickName;
     }
 
     public DreamLauncher() {
@@ -37,11 +45,15 @@ public class DreamLauncher extends JFrame {
     }
 
     private void initializeWindow() {
-        ImageIcon logo = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Images/logo.png")));
-        JLabel logoLabel = new JLabel(logo);
-        Dimension size = logoLabel.getPreferredSize();
-        logoLabel.setBounds(300, 203, size.width, size.height);
-        add(logoLabel);
+        try {
+            ImageIcon logo = new ImageIcon(Objects.requireNonNull(getClass().getResource("/Images/logo.png")));
+            JLabel logoLabel = new JLabel(logo);
+            Dimension size = logoLabel.getPreferredSize();
+            logoLabel.setBounds(300, 203, size.width, size.height);
+            add(logoLabel);
+        } catch (Exception e) {
+            System.err.println("Failed to load logo: " + e.getMessage());
+        }
     }
 
     private void center() {
@@ -51,42 +63,45 @@ public class DreamLauncher extends JFrame {
         setLocation(x, y);
     }
 
-    public static Config loadConfig() {
-        String filePath = folderPath + "/autofill.json";
+    private static Config loadConfig() {
+        Path filePath = Path.of(folderPath, "autofill.json");
         try {
-            return new Gson().fromJson(Files.readString(Path.of(filePath)), Config.class);
+            String content = Files.readString(filePath);
+            return new Gson().fromJson(content, Config.class);
         } catch (IOException e) {
             return new Config();
         }
     }
 
-    public static void saveConfig(Config config) {
-        String filePath = folderPath + "/autofill.json";
+    private static void saveConfig(Config config) {
+        Path filePath = Path.of(folderPath, "autofill.json");
         try {
-            Files.writeString(Path.of(filePath), new Gson().toJson(config));
+            String json = new Gson().toJson(config);
+            Files.writeString(filePath, json);
         } catch (IOException e) {
-            System.err.println("Failed to save config file.");
+            System.err.println("Failed to save config file: " + e.getMessage());
         }
     }
 
     public static void main(String[] args) {
-        display = new DreamLauncher();
-        ensureFolderExists();
-        config = loadConfig();
-
-        if (config.nickName != null) {
-            System.out.println("Auto-fill is successful, changing screen to MainScreen...");
-            changeToMainScreen(config.nickName);
-        } else {
-            System.out.println("Error with auto-fill, changing screen to FrogdreamLauncher...");
-            setupLauncherScreen();
-        }
+        SwingUtilities.invokeLater(() -> {
+            display = new DreamLauncher();
+            ensureFolderExists();
+            // config = loadConfig();
+            //if (config.nickName != null) {
+            //  System.out.println("Auto-fill successful, changing screen to MainScreen...");
+            //  changeToMainScreen(config.nickName);
+            // } else {
+            // System.out.println("No auto-fill data, showing launcher screen...");
+            // setupLauncherScreen();
+            //}
+        });
     }
 
     private static void ensureFolderExists() {
         File folder = new File(folderPath);
         if (!folder.exists() && !folder.mkdirs()) {
-            System.err.println("Failed to create cache folder.");
+            System.err.println("Failed to create cache folder");
             System.exit(1);
         }
     }
@@ -101,19 +116,14 @@ public class DreamLauncher extends JFrame {
     private static void setupLauncherScreen() {
         display.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         display.setTitle("Frogdream Launcher");
-        display.setSize(1022, 600);
-        display.getContentPane().setBackground(new Color(12, 12, 12));
+        display.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        display.getContentPane().setBackground(BACKGROUND_COLOR);
         display.setLayout(null);
 
-        JLabel launcherText = createLauncherLabel();
-        display.add(launcherText);
-
+        display.add(createLauncherLabel());
         nickname = createNicknameField();
         display.add(nickname);
-
-        JLabel rectangleLabel = createRectangleLabel();
-        display.add(rectangleLabel);
-
+        display.add(createRectangleLabel());
         enterLabel = createEnterLabel();
         display.add(enterLabel);
 
@@ -124,41 +134,44 @@ public class DreamLauncher extends JFrame {
 
     private static JLabel createLauncherLabel() {
         JLabel launcherText = new JLabel("Launcher");
-        launcherText.setForeground(new Color(116, 168, 50));
+        launcherText.setForeground(LAUNCHER_COLOR);
 
         try (InputStream is = DreamLauncher.class.getResourceAsStream("/Fonts/GolosText-Bold.ttf")) {
-            Font font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(is));
-            launcherText.setFont(font.deriveFont(56.0F));
+            Font font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(is)).deriveFont(56.0f);
+            launcherText.setFont(font);
             launcherText.setBounds(478, -19, 2000, 600);
         } catch (IOException | FontFormatException e) {
-            throw new RuntimeException(e);
+            System.err.println("Failed to load font: " + e.getMessage());
+            launcherText.setFont(new Font("Arial", Font.BOLD, 56));
         }
 
         return launcherText;
     }
 
     private static JTextField createNicknameField() {
-        JTextField nicknameField = new JTextField("Nickname");
+        JTextField nicknameField = new JTextField(DEFAULT_NICKNAME_TEXT);
         nicknameField.setBorder(null);
         nicknameField.setOpaque(false);
-        nicknameField.setForeground(new Color(100, 101, 101));
+        nicknameField.setForeground(NICKNAME_COLOR);
         nicknameField.setBounds(315, 375, 385, 60);
+
         nicknameField.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
-                if (!isTextChanged) {
+                if (!isTextChanged.get()) {
                     nicknameField.setText("");
-                    isTextChanged = true;
-                    nicknameField.setForeground(new Color(100, 101, 101));
+                    isTextChanged.set(true);
+                    nicknameField.setForeground(NICKNAME_COLOR);
                 }
             }
         });
 
         try (InputStream fontStream = DreamLauncher.class.getResourceAsStream("/Fonts/GolosText-Medium.ttf")) {
-            Font font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(fontStream));
-            nicknameField.setFont(font.deriveFont(16.0F));
+            Font font = Font.createFont(Font.TRUETYPE_FONT, Objects.requireNonNull(fontStream)).deriveFont(16.0f);
+            nicknameField.setFont(font);
         } catch (IOException | FontFormatException e) {
-            throw new RuntimeException(e);
+            System.err.println("Failed to load font: " + e.getMessage());
+            nicknameField.setFont(new Font("Arial", Font.PLAIN, 16));
         }
 
         nicknameField.addKeyListener(new KeyAdapter() {
@@ -174,67 +187,82 @@ public class DreamLauncher extends JFrame {
     }
 
     private static JLabel createRectangleLabel() {
-        ImageIcon rectangle = new ImageIcon(Objects.requireNonNull(DreamLauncher.class.getResource("/Images/rectangle.png")));
-        JLabel rectangleLabel = new JLabel(rectangle);
-        Dimension size = rectangleLabel.getPreferredSize();
-        rectangleLabel.setBounds(293, 380, size.width, size.height);
-        return rectangleLabel;
+        try {
+            ImageIcon rectangle = new ImageIcon(Objects.requireNonNull(DreamLauncher.class.getResource("/Images/rectangle.png")));
+            JLabel rectangleLabel = new JLabel(rectangle);
+            Dimension size = rectangleLabel.getPreferredSize();
+            rectangleLabel.setBounds(293, 380, size.width, size.height);
+            return rectangleLabel;
+        } catch (Exception e) {
+            System.err.println("Failed to load rectangle image: " + e.getMessage());
+            return new JLabel();
+        }
     }
 
     private static JLabel createEnterLabel() {
-        final ImageIcon enter = new ImageIcon(Objects.requireNonNull(DreamLauncher.class.getResource("/Images/enter.png")));
-        JLabel enterLabel = new JLabel(enter);
-        enterLabel.setBounds(704, 390, 30, 30);
-        enterLabel.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                enterLabel.setIcon(getBrighterIcon(enter));
-            }
+        try {
+            final ImageIcon enter = new ImageIcon(Objects.requireNonNull(DreamLauncher.class.getResource("/Images/enter.png")));
+            JLabel enterLabel = new JLabel(enter);
+            enterLabel.setBounds(704, 390, 30, 30);
+            enterLabel.addMouseListener(new MouseAdapter() {
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    enterLabel.setIcon(getBrighterIcon(enter));
+                }
 
-            @Override
-            public void mouseExited(MouseEvent e) {
-                enterLabel.setIcon(enter);
-            }
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    enterLabel.setIcon(enter);
+                }
 
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                performAction();
-            }
-        });
-        return enterLabel;
+                @Override
+                public void mouseClicked(MouseEvent e) {
+                    performAction();
+                }
+            });
+            return enterLabel;
+        } catch (Exception e) {
+            System.err.println("Failed to load enter image: " + e.getMessage());
+            return new JLabel();
+        }
     }
 
     private static void performAction() {
-        String enteredNickname = nickname.getText();
+        String enteredNickname = nickname.getText().trim();
 
         if (isValidNickname(enteredNickname)) {
             changeToMainScreen(enteredNickname);
             config.nickName = enteredNickname;
             saveConfig(config);
         } else {
-            nickname.setText("Incorrect nickname!");
-            nickname.setForeground(new Color(222, 45, 56));
+            nickname.setText(ERROR_NICKNAME_TEXT);
+            nickname.setForeground(ERROR_COLOR);
         }
     }
 
     private static boolean isValidNickname(String nickname) {
-        return nickname.matches("[a-zA-Z0-9_-]+");
+        return nickname != null && !nickname.isEmpty() && nickname.matches("[a-zA-Z0-9_-]+");
     }
 
     private static ImageIcon getBrighterIcon(ImageIcon icon) {
         Image img = icon.getImage();
-        BufferedImage bufferedImage = new BufferedImage(img.getWidth(null), img.getHeight(null), BufferedImage.TYPE_INT_ARGB);
+        BufferedImage bufferedImage = new BufferedImage(
+                img.getWidth(null),
+                img.getHeight(null),
+                BufferedImage.TYPE_INT_ARGB);
+
         Graphics2D graphics = bufferedImage.createGraphics();
         graphics.drawImage(img, 0, 0, null);
         graphics.dispose();
 
+        float brightnessIncrease = 1.4f;
         for (int y = 0; y < bufferedImage.getHeight(); y++) {
             for (int x = 0; x < bufferedImage.getWidth(); x++) {
                 int rgb = bufferedImage.getRGB(x, y);
                 Color color = new Color(rgb, true);
-                int r = Math.min((int) (color.getRed() * 1.4), 255);
-                int g = Math.min((int) (color.getGreen() * 1.4), 255);
-                int b = Math.min((int) (color.getBlue() * 1.4), 255);
+                int r = Math.min((int) (color.getRed() * brightnessIncrease), 255);
+                int g = Math.min((int) (color.getGreen() * brightnessIncrease), 255);
+                int b = Math.min((int) (color.getBlue() * brightnessIncrease), 255);
                 bufferedImage.setRGB(x, y, new Color(r, g, b, color.getAlpha()).getRGB());
             }
         }

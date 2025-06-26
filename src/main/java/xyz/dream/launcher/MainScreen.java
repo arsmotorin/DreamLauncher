@@ -1645,8 +1645,9 @@ public class MainScreen extends JFrame {
                     }
 
                     public void mouseClicked(MouseEvent e) {
-                        DreamLauncher.config.nickName = null;
-                        DreamLauncher.saveConfig(DreamLauncher.config);
+                        // TODO: rewrite DreamLauncher.config.nickName
+                        // DreamLauncher.config.nickName = null;
+                        // DreamLauncher.saveConfig(DreamLauncher.config);
                         DreamLauncher launcher = new DreamLauncher();
                         //launcher.center();
                         DreamLauncher.main(new String[0]);
