@@ -1,4 +1,3 @@
-package xyz.dream.launcher.managers;
+package xyz.dream.launcher.managers
 
-public class Downloader {
-}
+class Downloader 

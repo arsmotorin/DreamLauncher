@@ -3,6 +3,7 @@ plugins {
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
+    id 'org.jetbrains.kotlin.jvm'
 }
 
 group 'org.example'
@@ -24,6 +25,7 @@ dependencies {
     implementation 'org.openjfx:javafx-base:17.0.15'
     implementation 'org.openjfx:javafx-graphics:17.0.15'
     implementation 'org.openjfx:javafx-swing:17.0.15'
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
 }
 
 javafx {
@@ -49,4 +51,7 @@ tasks.withType(JavaCompile) {
 shadowJar {
     archiveClassifier.set('all')
     mergeServiceFiles()
+}
+kotlin {
+    jvmToolchain(17)
 }

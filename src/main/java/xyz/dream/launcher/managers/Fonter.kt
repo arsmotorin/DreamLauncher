@@ -1,38 +1,30 @@
-package xyz.dream.launcher.managers;
+package xyz.dream.launcher.managers
 
-import javafx.scene.text.Font;
+import javafx.scene.text.Font
 
-public class Fonter {
-    
-    private Font gilroyMedium = null;
-    private Font gilroyBold = null;
-    private Font gilroyExtraBold = null;
-    
-    public Fonter() {
+class Fonter {
+    var gilroyMedium: Font? = null
+        private set
+    var gilroyBold: Font? = null
+        private set
+    var gilroyExtraBold: Font? = null
+        private set
+
+    init {
         try {
-            gilroyMedium = Font.loadFont(getClass().getResourceAsStream("/Fonts/Gilroy-Medium.ttf"), 18);
-        } catch (Exception e) {
-            e.printStackTrace();
+            gilroyMedium = Font.loadFont(javaClass.getResourceAsStream("/Fonts/Gilroy-Medium.ttf"), 18.0)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         try {
-            gilroyBold = Font.loadFont(getClass().getResourceAsStream("/Fonts/Gilroy-Bold.ttf"), 18);
-        } catch (Exception e) {
-            e.printStackTrace();
+            gilroyBold = Font.loadFont(javaClass.getResourceAsStream("/Fonts/Gilroy-Bold.ttf"), 18.0)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
         try {
-            gilroyExtraBold = Font.loadFont(getClass().getResourceAsStream("/Fonts/Gilroy-ExtraBold.ttf"), 18);
-        } catch (Exception e) {
-            e.printStackTrace();
+            gilroyExtraBold = Font.loadFont(javaClass.getResourceAsStream("/Fonts/Gilroy-ExtraBold.ttf"), 18.0)
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
-    }
-    
-    public Font getGilroyMedium() {
-        return gilroyMedium;
-    }
-    public Font getGilroyBold() {
-        return gilroyBold;
-    }
-    public Font getGilroyExtraBold() {
-        return gilroyExtraBold;
     }
 }
