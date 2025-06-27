@@ -16,8 +16,6 @@ import xyz.dream.launcher.managers.Nicknamer;
 import java.util.Objects;
 
 public class MainScreen extends Application {
-    private Image logo;
-    private final int playtime = 100;
 
     @Override
     public void start(javafx.stage.Stage primaryStage) {
@@ -37,9 +35,9 @@ public class MainScreen extends Application {
         primaryStage.centerOnScreen();
 
         // Logo
-        ImageView logoView = null;
+        ImageView logoView;
         try {
-            logo = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Images/logo.png")));
+            Image logo = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Images/logo.png")));
             logoView = new ImageView(logo);
             logoView.setX(68);
             logoView.setY(62);
@@ -194,7 +192,8 @@ public class MainScreen extends Application {
 
         root.getChildren().add(nicknameText);
 
-        String playtime = String.valueOf(this.playtime);
+        int playtime1 = 100;
+        String playtime = String.valueOf(playtime1);
         Text playtimeText = new Text("Наиграно: " + playtime + " ч.");
         playtimeText.setX(124);
         playtimeText.setY(523);
