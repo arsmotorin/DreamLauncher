@@ -37,6 +37,16 @@ public class DreamLauncher {
             Application.launch(StartingScreen.class, args);
         }
     }
+
+    public static void main(String[] args) {
+        // Set JavaFX system properties to resolve rendering pipeline issues
+        System.setProperty("javafx.verbose", "true");
+        System.setProperty("prism.verbose", "true");
+        System.setProperty("prism.order", "sw");
+        
+        // Launch the application
+        launch(args);
+    }
     
     private static String getSettingsPath() {
         String os = System.getProperty("os.name").toLowerCase();
