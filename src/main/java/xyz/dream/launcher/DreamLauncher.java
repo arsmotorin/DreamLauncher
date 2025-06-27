@@ -22,20 +22,19 @@ public class DreamLauncher extends Application {
             try {
                 String content = new String(Files.readAllBytes(settingsFilePath));
                 if (!content.isEmpty()) {
-                    System.out.println("Settings file found, transitioning to MainScreen...");
+                    System.out.println("Settings file found");
                     MainScreen mainScreen = new MainScreen();
                     mainScreen.start(primaryStage);
                 } else {
-                    System.out.println("Settings file is empty, launching StartingScreen...");
+                    System.out.println("Settings file is empty");
                     StartingScreen startingScreen = new StartingScreen();
                     startingScreen.start(primaryStage);
                 }
             } catch (Exception e) {
                 System.err.println("Error reading settings file: " + e.getMessage());
-                System.out.println("Launching StartingScreen due to error...");
+                System.out.println("Closing the application...");
                 try {
-                    StartingScreen startingScreen = new StartingScreen();
-                    startingScreen.start(primaryStage);
+                    System.exit(0);
                 } catch (Exception ex) {
                     ex.printStackTrace();
                 }

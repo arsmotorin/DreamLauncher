@@ -23,7 +23,7 @@ public class MainScreen extends Application {
 
     @Override
     public void start(javafx.stage.Stage primaryStage) {
-        System.out.println("xyz.dream.launcher.MainScreen started successfully.");
+        System.out.println("MainScreen started successfully");
 
         Pane root = new Pane();
         Scene scene = new Scene(root, 1040, 589);

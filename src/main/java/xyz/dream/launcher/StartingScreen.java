@@ -207,17 +207,8 @@ public class StartingScreen extends Application {
                             exitTimeline.getKeyFrames().add(kfArrowDown);
                         }
 
-                        // Log the transition time and FPS
-                        long startTime = System.nanoTime();
                         exitTimeline.setOnFinished(e -> {
                             try {
-                                long endTime = System.nanoTime();
-                                double transitionTimeMs = (endTime - startTime) / 1_000_000.0;
-                                int targetFps = 60;
-                                int totalFrames = (int) (durationMillis / 1000 * targetFps);
-                                System.out.println("Transition time: " + transitionTimeMs + " ms");
-                                System.out.println("Animation FPS: " + targetFps + ", Total frames: " + totalFrames);
-
                                 mainScreen.start(primaryStage);
                             } catch (Exception ex) {
                                 System.err.println("Error transitioning to MainScreen: " + ex.getMessage());
@@ -229,14 +220,13 @@ public class StartingScreen extends Application {
                     });
 
                     preloadTask.setOnFailed(event -> {
-                        System.err.println("Error preloading MainScreen: " + preloadTask.getException().getMessage());
                         preloadTask.getException().printStackTrace();
                     });
 
                     // Start the preload task in a separate thread
                     new Thread(preloadTask).start();
                 } else {
-                    System.out.println("Invalid nickname. Must be 3-16 characters");
+                    System.out.println("Invalid nickname entered: " + currentNickname);
 
                     nickNameInput.setStyle("-fx-background-color: transparent; -fx-text-fill: #F6342D; -fx-background-radius: 8; -fx-border-radius: 8; -fx-prompt-text-fill: #575757;");
                     nickNameInput.requestFocus();
@@ -252,7 +242,6 @@ public class StartingScreen extends Application {
             });
 
         } catch (Exception e) {
-            System.err.println("Error loading right arrow: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -265,9 +254,6 @@ public class StartingScreen extends Application {
         double durationMillis = 850;
         int targetFps = 60;
         int totalFrames = (int) (durationMillis / 1000 * targetFps);
-
-        // Log the entrance animation time and FPS
-        System.out.println("Entrance Animation FPS: " + targetFps + ", Total frames: " + totalFrames);
 
         double logoStartY = -offsetY;
         double logoEndY = 0;
