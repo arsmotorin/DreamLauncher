@@ -49,7 +49,7 @@ public class StartingScreen extends Application {
         // Load custom font
         Font gilroyMedium = null;
         try {
-            gilroyMedium = Font.loadFont(getClass().getResourceAsStream("/fonts/Gilroy-Medium.ttf"), 18);
+            gilroyMedium = Font.loadFont(getClass().getResourceAsStream("/Fonts/Gilroy-Medium.ttf"), 18);
             System.out.println("Font loaded successfully");
         } catch (Exception e) {
             System.err.println("Error when loading the font: " + e.getMessage());
@@ -183,11 +183,12 @@ public class StartingScreen extends Application {
 
                     // Transition to xyz.dream.launcher.MainScreen
                     try {
-                        // xyz.dream.launcher.MainScreen mainScreen = new xyz.dream.launcher.MainScreen();
+                        root.getChildren().clear();
                         System.out.println("Transitioning to xyz.dream.launcher.MainScreen...");
                         MainScreen mainScreen = new MainScreen();
                         mainScreen.start(primaryStage);
-                        root.getChildren().clear();
+
+                        System.gc();
 
                     } catch (Exception ex) {
                         System.err.println("Error transitioning to xyz.dream.launcher.MainScreen: " + ex.getMessage());
@@ -224,7 +225,7 @@ public class StartingScreen extends Application {
         // Animation
         double offsetY = 300;
         double durationMillis = 850;
-        int targetFps = 120;
+        int targetFps = 60;
         int totalFrames = (int) (durationMillis / 1000 * targetFps);
 
         double logoStartY = -offsetY;

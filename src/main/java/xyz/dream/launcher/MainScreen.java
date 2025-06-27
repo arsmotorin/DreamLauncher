@@ -1,6 +1,9 @@
 package xyz.dream.launcher;
 
 import javafx.application.Application;
+import javafx.scene.Scene;
+import javafx.scene.layout.Pane;
+import xyz.dream.launcher.managers.Iconer;
 
 public class MainScreen extends Application {
     @Override
@@ -18,6 +21,9 @@ public class MainScreen extends Application {
         primaryStage.setTitle("Dream Launcher");
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
+        primaryStage.centerOnScreen();
+
+        Iconer.setApplicationIcon(primaryStage, "Dream Launcher");
 
         // Show the main screen
         primaryStage.show();

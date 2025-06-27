@@ -1,6 +1,5 @@
 plugins {
     id 'java'
-    id 'com.github.johnrengelman.shadow' version '8.1.1'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
 }
@@ -10,10 +9,6 @@ version '1.0'
 
 repositories {
     mavenCentral()
-    maven {
-        url = "https://repo1.maven.org/maven2/"
-    }
-    jcenter()
 }
 
 dependencies {
@@ -22,13 +17,13 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:2.0.7'
     implementation 'commons-io:commons-io:2.13.0'
     implementation 'com.google.code.gson:gson:2.10.1'
-    implementation "org.openjfx:javafx-fxml:21.0.2"
-    implementation "org.openjfx:javafx-controls:21.0.2"
-    implementation group: 'org.apache.commons', name: 'commons-lang3', version: '3.12.0'
+    implementation 'org.openjfx:javafx-controls:21.0.2'
+    implementation 'org.openjfx:javafx-fxml:21.0.2'
+    implementation 'org.apache.commons:commons-lang3:3.12.0'
 }
 
 javafx {
-    version = "17.0.0"
+    version = '21.0.2'
     modules = [ 'javafx.controls', 'javafx.fxml' ]
 }
 
@@ -36,15 +31,13 @@ application {
     mainClass = 'xyz.dream.launcher.DreamLauncher'
 }
 
-tasks.withType(JavaCompile) {
-    options.release.set(17)
-}
-compileJava {
-    options.encoding = "UTF-8"
-}
-
-shadowJar {
+jar {
     manifest {
         attributes 'Main-Class': 'xyz.dream.launcher.DreamLauncher'
     }
+}
+
+tasks.withType(JavaCompile) {
+    options.release.set(17)
+    options.encoding = 'UTF-8'
 }

@@ -1,17 +1,17 @@
 package xyz.dream.launcher;
 
 import javafx.application.Application;
+import javafx.stage.Stage;
 
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-public class DreamLauncher {
+public class DreamLauncher extends Application {
 
-    public static void main(String[] args) {
-        System.setProperty("javafx.verbose", "true");
-
+    @Override
+    public void start(Stage primaryStage) {
         String settingsPath = getSettingsPath();
         Path settingsFilePath = Paths.get(settingsPath, StartingScreen.SETTINGS_FILE);
         
@@ -22,19 +22,31 @@ public class DreamLauncher {
                 String content = new String(Files.readAllBytes(settingsFilePath));
                 if (!content.isEmpty()) {
                     System.out.println("Settings file found, transitioning to MainScreen...");
-                    Application.launch(MainScreen.class, args);
+                    MainScreen mainScreen = new MainScreen();
+                    mainScreen.start(primaryStage);
                 } else {
                     System.out.println("Settings file is empty, launching StartingScreen...");
-                    Application.launch(StartingScreen.class, args);
+                    StartingScreen startingScreen = new StartingScreen();
+                    startingScreen.start(primaryStage);
                 }
             } catch (Exception e) {
                 System.err.println("Error reading settings file: " + e.getMessage());
                 System.out.println("Launching StartingScreen due to error...");
-                Application.launch(StartingScreen.class, args);
+                try {
+                    StartingScreen startingScreen = new StartingScreen();
+                    startingScreen.start(primaryStage);
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
             }
         } else {
             System.out.println("Settings file not found, launching StartingScreen...");
-            Application.launch(StartingScreen.class, args);
+            try {
+                StartingScreen startingScreen = new StartingScreen();
+                startingScreen.start(primaryStage);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
