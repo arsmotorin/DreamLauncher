@@ -5,6 +5,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
+import javafx.concurrent.Task;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.TextField;
@@ -35,7 +36,7 @@ public class StartingScreen extends Application {
         Scene scene = new Scene(root, 1040, 589);
 
         // Background color
-        scene.setFill(javafx.scene.paint.Color.web("#1C1C1C"));
+        scene.setFill(Color.web("#1C1C1C"));
         root.setStyle("-fx-background-color: #1C1C1C;");
 
         // Application title
@@ -79,7 +80,6 @@ public class StartingScreen extends Application {
         nickNameInput.setStyle("-fx-background-color: transparent; -fx-text-fill: #6F6F6F; -fx-background-radius: 8; -fx-border-radius: 8; -fx-prompt-text-fill: #575757;");
 
         Fonter fonter = new Fonter();
-
         if (fonter.getGilroyMedium() != null) {
             nickNameInput.setFont(fonter.getGilroyMedium());
         } else {
@@ -104,7 +104,7 @@ public class StartingScreen extends Application {
 
         // Create a Nicknamer instance for nickname management
         Nicknamer nicknamer = new Nicknamer();
-        
+
         // Load saved nickname if available
         String savedNickname = nicknamer.loadNickname();
         if (savedNickname != null && !savedNickname.isEmpty()) {
@@ -134,7 +134,6 @@ public class StartingScreen extends Application {
             ImageView rightArrowView = new ImageView(rightArrowImage);
 
             rightArrowContainer = new StackPane();
-
             rightArrowContainer.setLayoutX(621);
             rightArrowContainer.setLayoutY(384);
             rightArrowView.setFitWidth(10);
@@ -150,7 +149,6 @@ public class StartingScreen extends Application {
                 ColorAdjust highlight = new ColorAdjust();
                 highlight.setBrightness(0.3);
                 rightArrowView.setEffect(highlight);
-
                 finalRightArrowContainer1.setCursor(Cursor.HAND);
             });
 
@@ -159,7 +157,6 @@ public class StartingScreen extends Application {
             });
 
             rightArrowContainer.getChildren().addAll(rightClickArea, rightArrowView);
-
             root.getChildren().add(rightArrowContainer);
 
             StackPane finalRightArrowContainer = rightArrowContainer;
@@ -167,55 +164,77 @@ public class StartingScreen extends Application {
             rightArrowContainer.setOnMouseClicked(clickEvent -> {
                 String currentNickname = nickNameInput.getText().trim();
 
+                // TODO: do a lot of checks here
                 // Check if the nickname is valid (3-16 characters)
                 if (currentNickname.length() >= 3 && currentNickname.length() <= 16) {
-                    // Save nickname before transitioning
+                    // Save nickname
                     nicknamer.saveNickname(currentNickname);
                     System.out.println("Valid nickname entered: " + currentNickname);
 
-                    // Exit animation (reverse of entrance animation)
-                    double offsetY = 600;
-                    double durationMillis = 850;
-
-                    // Create a timeline for exit animation
-                    Timeline exitTimeline = new Timeline();
-                    
-                    // Logo moves up
-                    if (finalLogoView != null) {
-                        KeyValue kvLogoUp = new KeyValue(finalLogoView.translateYProperty(), -offsetY);
-                        KeyFrame kfLogoUp = new KeyFrame(Duration.millis(durationMillis), kvLogoUp);
-                        exitTimeline.getKeyFrames().add(kfLogoUp);
-                    }
-                    
-                    // Nickname field moves down
-                    KeyValue kvFieldDown = new KeyValue(nickNameField.translateYProperty(), offsetY);
-                    KeyFrame kfFieldDown = new KeyFrame(Duration.millis(durationMillis), kvFieldDown);
-                    exitTimeline.getKeyFrames().add(kfFieldDown);
-                    
-                    // Nickname input moves down
-                    KeyValue kvInputDown = new KeyValue(nickNameInput.translateYProperty(), offsetY);
-                    KeyFrame kfInputDown = new KeyFrame(Duration.millis(durationMillis), kvInputDown);
-                    exitTimeline.getKeyFrames().add(kfInputDown);
-                    
-                    // Right arrow moves down
-                    if (finalRightArrowContainer != null) {
-                        KeyValue kvArrowDown = new KeyValue(finalRightArrowContainer.translateYProperty(), offsetY);
-                        KeyFrame kfArrowDown = new KeyFrame(Duration.millis(durationMillis), kvArrowDown);
-                        exitTimeline.getKeyFrames().add(kfArrowDown);
-                    }
-                    
-                    exitTimeline.setOnFinished(e -> {
-                        try {
-                            MainScreen mainScreen = new MainScreen();
-                            mainScreen.start(primaryStage);
-                        } catch (Exception ex) {
-                            System.err.println("Error transitioning to HelloScreen: " + ex.getMessage());
-                            ex.printStackTrace();
+                    // Preload
+                    Task<MainScreen> preloadTask = new Task<>() {
+                        @Override
+                        protected MainScreen call() throws Exception {
+                            return new MainScreen();
                         }
+                    };
+
+                    preloadTask.setOnSucceeded(event -> {
+                        MainScreen mainScreen = preloadTask.getValue();
+
+                        // Exit animation
+                        double offsetY = 600;
+                        double durationMillis = 850;
+
+                        Timeline exitTimeline = new Timeline();
+                        if (finalLogoView != null) {
+                            KeyValue kvLogoUp = new KeyValue(finalLogoView.translateYProperty(), -offsetY);
+                            KeyFrame kfLogoUp = new KeyFrame(Duration.millis(durationMillis), kvLogoUp);
+                            exitTimeline.getKeyFrames().add(kfLogoUp);
+                        }
+
+                        KeyValue kvFieldDown = new KeyValue(nickNameField.translateYProperty(), offsetY);
+                        KeyFrame kfFieldDown = new KeyFrame(Duration.millis(durationMillis), kvFieldDown);
+                        exitTimeline.getKeyFrames().add(kfFieldDown);
+
+                        KeyValue kvInputDown = new KeyValue(nickNameInput.translateYProperty(), offsetY);
+                        KeyFrame kfInputDown = new KeyFrame(Duration.millis(durationMillis), kvInputDown);
+                        exitTimeline.getKeyFrames().add(kfInputDown);
+
+                        if (finalRightArrowContainer != null) {
+                            KeyValue kvArrowDown = new KeyValue(finalRightArrowContainer.translateYProperty(), offsetY);
+                            KeyFrame kfArrowDown = new KeyFrame(Duration.millis(durationMillis), kvArrowDown);
+                            exitTimeline.getKeyFrames().add(kfArrowDown);
+                        }
+
+                        // Log the transition time and FPS
+                        long startTime = System.nanoTime();
+                        exitTimeline.setOnFinished(e -> {
+                            try {
+                                long endTime = System.nanoTime();
+                                double transitionTimeMs = (endTime - startTime) / 1_000_000.0;
+                                int targetFps = 60;
+                                int totalFrames = (int) (durationMillis / 1000 * targetFps);
+                                System.out.println("Transition time: " + transitionTimeMs + " ms");
+                                System.out.println("Animation FPS: " + targetFps + ", Total frames: " + totalFrames);
+
+                                mainScreen.start(primaryStage);
+                            } catch (Exception ex) {
+                                System.err.println("Error transitioning to MainScreen: " + ex.getMessage());
+                                ex.printStackTrace();
+                            }
+                        });
+
+                        exitTimeline.play();
                     });
-                    
-                    // Play the exit animation
-                    exitTimeline.play();
+
+                    preloadTask.setOnFailed(event -> {
+                        System.err.println("Error preloading MainScreen: " + preloadTask.getException().getMessage());
+                        preloadTask.getException().printStackTrace();
+                    });
+
+                    // Start the preload task in a separate thread
+                    new Thread(preloadTask).start();
                 } else {
                     System.out.println("Invalid nickname. Must be 3-16 characters");
 
@@ -241,11 +260,14 @@ public class StartingScreen extends Application {
         primaryStage.show();
         System.out.println("Application started successfully");
 
-        // Animation
+        // Entrance animation
         double offsetY = 300;
         double durationMillis = 850;
         int targetFps = 60;
         int totalFrames = (int) (durationMillis / 1000 * targetFps);
+
+        // Log the entrance animation time and FPS
+        System.out.println("Entrance Animation FPS: " + targetFps + ", Total frames: " + totalFrames);
 
         double logoStartY = -offsetY;
         double logoEndY = 0;
