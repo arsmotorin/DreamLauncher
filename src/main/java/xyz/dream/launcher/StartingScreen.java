@@ -169,6 +169,7 @@ public class StartingScreen extends Application {
                 if (currentNickname.length() >= 3 && currentNickname.length() <= 16) {
                     // Save nickname
                     nicknamer.saveNickname(currentNickname);
+                    nicknamer.showCubeliusImage();
                     System.out.println("Valid nickname entered: " + currentNickname);
 
                     // Preload
