@@ -10,6 +10,7 @@ import javafx.scene.control.TextField;
 import javafx.util.Duration;
 import xyz.dream.launcher.MainScreen;
 
+// TODO: rewrite to the Kotlin
 public class Animator {
     /**
      * Creates an entrance animation for the starting screen elements.
