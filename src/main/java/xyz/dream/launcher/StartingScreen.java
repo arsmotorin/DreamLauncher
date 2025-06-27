@@ -1,6 +1,8 @@
 package xyz.dream.launcher;
 
+import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.scene.Cursor;
@@ -17,17 +19,13 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import xyz.dream.launcher.managers.Fonter;
+import xyz.dream.launcher.managers.Nicknamer;
 
-import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.function.UnaryOperator;
 
 public class StartingScreen extends Application {
-    public static final String SETTINGS_FOLDER = ".DreamLauncher";
-    public static final String SETTINGS_FILE = "settings.json";
     private Image logo;
 
     @Override
@@ -46,16 +44,6 @@ public class StartingScreen extends Application {
         primaryStage.setResizable(false);
         primaryStage.centerOnScreen();
 
-        // Load custom font
-        Font gilroyMedium = null;
-        try {
-            gilroyMedium = Font.loadFont(getClass().getResourceAsStream("/Fonts/Gilroy-Medium.ttf"), 18);
-            System.out.println("Font loaded successfully");
-        } catch (Exception e) {
-            System.err.println("Error when loading the font: " + e.getMessage());
-            e.printStackTrace();
-        }
-
         // Nickname field background
         Rectangle nickNameField = new Rectangle();
         nickNameField.setX(370);
@@ -68,7 +56,6 @@ public class StartingScreen extends Application {
 
         // Add nickNameField to root first (background layer)
         root.getChildren().add(nickNameField);
-        System.out.println("Added nickname field background");
 
         // Load logo
         ImageView logoView = null;
@@ -78,7 +65,6 @@ public class StartingScreen extends Application {
             logoView.setX(392);
             logoView.setY(161);
             root.getChildren().add(logoView);
-            System.out.println("Logo added successfully");
         } catch (Exception e) {
             System.err.println("Error when loading the logo: " + e.getMessage());
             e.printStackTrace();
@@ -92,8 +78,10 @@ public class StartingScreen extends Application {
         nickNameInput.setPrefHeight(56);
         nickNameInput.setStyle("-fx-background-color: transparent; -fx-text-fill: #6F6F6F; -fx-background-radius: 8; -fx-border-radius: 8; -fx-prompt-text-fill: #575757;");
 
-        if (gilroyMedium != null) {
-            nickNameInput.setFont(gilroyMedium);
+        Fonter fonter = new Fonter();
+
+        if (fonter.getGilroyMedium() != null) {
+            nickNameInput.setFont(fonter.getGilroyMedium());
         } else {
             nickNameInput.setFont(Font.font("Arial", 18));
         }
@@ -114,8 +102,11 @@ public class StartingScreen extends Application {
         // Remove automatic focus traversal
         nickNameInput.setFocusTraversable(false);
 
+        // Create a Nicknamer instance for nickname management
+        Nicknamer nicknamer = new Nicknamer();
+        
         // Load saved nickname if available
-        String savedNickname = loadNickname();
+        String savedNickname = nicknamer.loadNickname();
         if (savedNickname != null && !savedNickname.isEmpty()) {
             nickNameInput.setText(savedNickname);
             System.out.println("Loaded saved nickname: " + savedNickname);
@@ -135,9 +126,8 @@ public class StartingScreen extends Application {
 
         // Add nickNameInput to the root
         root.getChildren().add(nickNameInput);
-        System.out.println("Added nickname input field");
 
-        // Right arrow
+        // Right arrow button
         StackPane rightArrowContainer = null;
         try {
             Image rightArrowImage = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Images/rightArrow.png")));
@@ -145,12 +135,14 @@ public class StartingScreen extends Application {
 
             rightArrowContainer = new StackPane();
 
-            rightArrowContainer.setLayoutX(610);
-            rightArrowContainer.setLayoutY(376.5);
+            rightArrowContainer.setLayoutX(621);
+            rightArrowContainer.setLayoutY(384);
+            rightArrowView.setFitWidth(10);
+            rightArrowView.setFitHeight(20);
 
             Rectangle rightClickArea = new Rectangle();
-            rightClickArea.setWidth(rightArrowImage.getWidth() + 30);
-            rightClickArea.setHeight(rightArrowImage.getHeight() + 30);
+            rightClickArea.setWidth(rightArrowView.getFitWidth() + 12);
+            rightClickArea.setHeight(rightArrowView.getFitHeight() + 12);
             rightClickArea.setFill(Color.TRANSPARENT);
 
             StackPane finalRightArrowContainer1 = rightArrowContainer;
@@ -169,40 +161,67 @@ public class StartingScreen extends Application {
             rightArrowContainer.getChildren().addAll(rightClickArea, rightArrowView);
 
             root.getChildren().add(rightArrowContainer);
-            System.out.println("Right arrow with increased click area added to the scene");
 
             StackPane finalRightArrowContainer = rightArrowContainer;
+            ImageView finalLogoView = logoView;
             rightArrowContainer.setOnMouseClicked(clickEvent -> {
                 String currentNickname = nickNameInput.getText().trim();
 
                 // Check if the nickname is valid (3-16 characters)
                 if (currentNickname.length() >= 3 && currentNickname.length() <= 16) {
                     // Save nickname before transitioning
-                    saveNickname(currentNickname);
+                    nicknamer.saveNickname(currentNickname);
                     System.out.println("Valid nickname entered: " + currentNickname);
 
-                    // Transition to xyz.dream.launcher.MainScreen
-                    try {
-                        root.getChildren().clear();
-                        System.out.println("Transitioning to xyz.dream.launcher.MainScreen...");
-                        MainScreen mainScreen = new MainScreen();
-                        mainScreen.start(primaryStage);
+                    // Exit animation (reverse of entrance animation)
+                    double offsetY = 600;
+                    double durationMillis = 850;
 
-                        System.gc();
-
-                    } catch (Exception ex) {
-                        System.err.println("Error transitioning to xyz.dream.launcher.MainScreen: " + ex.getMessage());
-                        ex.printStackTrace();
+                    // Create a timeline for exit animation
+                    Timeline exitTimeline = new Timeline();
+                    
+                    // Logo moves up
+                    if (finalLogoView != null) {
+                        KeyValue kvLogoUp = new KeyValue(finalLogoView.translateYProperty(), -offsetY);
+                        KeyFrame kfLogoUp = new KeyFrame(Duration.millis(durationMillis), kvLogoUp);
+                        exitTimeline.getKeyFrames().add(kfLogoUp);
                     }
+                    
+                    // Nickname field moves down
+                    KeyValue kvFieldDown = new KeyValue(nickNameField.translateYProperty(), offsetY);
+                    KeyFrame kfFieldDown = new KeyFrame(Duration.millis(durationMillis), kvFieldDown);
+                    exitTimeline.getKeyFrames().add(kfFieldDown);
+                    
+                    // Nickname input moves down
+                    KeyValue kvInputDown = new KeyValue(nickNameInput.translateYProperty(), offsetY);
+                    KeyFrame kfInputDown = new KeyFrame(Duration.millis(durationMillis), kvInputDown);
+                    exitTimeline.getKeyFrames().add(kfInputDown);
+                    
+                    // Right arrow moves down
+                    if (finalRightArrowContainer != null) {
+                        KeyValue kvArrowDown = new KeyValue(finalRightArrowContainer.translateYProperty(), offsetY);
+                        KeyFrame kfArrowDown = new KeyFrame(Duration.millis(durationMillis), kvArrowDown);
+                        exitTimeline.getKeyFrames().add(kfArrowDown);
+                    }
+                    
+                    exitTimeline.setOnFinished(e -> {
+                        try {
+                            MainScreen mainScreen = new MainScreen();
+                            mainScreen.start(primaryStage);
+                        } catch (Exception ex) {
+                            System.err.println("Error transitioning to HelloScreen: " + ex.getMessage());
+                            ex.printStackTrace();
+                        }
+                    });
+                    
+                    // Play the exit animation
+                    exitTimeline.play();
                 } else {
-                    // Invalid nickname - show feedback
                     System.out.println("Invalid nickname. Must be 3-16 characters");
 
-                    // Red text
                     nickNameInput.setStyle("-fx-background-color: transparent; -fx-text-fill: #F6342D; -fx-background-radius: 8; -fx-border-radius: 8; -fx-prompt-text-fill: #575757;");
                     nickNameInput.requestFocus();
 
-                    // Reset style after a short delay
                     Timeline timeline = new Timeline(
                             new KeyFrame(
                                     Duration.seconds(2),
@@ -257,54 +276,5 @@ public class StartingScreen extends Application {
             timeline.getKeyFrames().add(kf);
         }
         timeline.play();
-    }
-
-    private String getSettingsPath() {
-        String os = System.getProperty("os.name").toLowerCase();
-        String userHome = System.getProperty("user.home");
-
-        if (os.contains("win")) {
-            return System.getenv("APPDATA") + File.separator + SETTINGS_FOLDER;
-        } else if (os.contains("mac")) {
-            return userHome + "/Library/Application Support/" + SETTINGS_FOLDER;
-        } else {
-            return userHome + "/.config/" + SETTINGS_FOLDER;
-        }
-    }
-
-    private void saveNickname(String nickname) {
-        try {
-            Path settingsDir = Paths.get(getSettingsPath());
-            Files.createDirectories(settingsDir);
-
-            Path settingsFile = settingsDir.resolve(SETTINGS_FILE);
-            com.google.gson.JsonObject json = new com.google.gson.JsonObject();
-            json.addProperty("nickname", nickname);
-
-            Files.write(settingsFile, new com.google.gson.GsonBuilder()
-                    .setPrettyPrinting()
-                    .create()
-                    .toJson(json)
-                    .getBytes());
-        } catch (Exception e) {
-            System.err.println("Error saving settings: " + e.getMessage());
-        }
-    }
-
-    private String loadNickname() {
-        try {
-            Path settingsFile = Paths.get(getSettingsPath(), SETTINGS_FILE);
-            if (Files.exists(settingsFile)) {
-                String content = new String(Files.readAllBytes(settingsFile));
-                return new com.google.gson.JsonParser()
-                        .parse(content)
-                        .getAsJsonObject()
-                        .get("nickname")
-                        .getAsString();
-            }
-        } catch (Exception e) {
-            System.err.println("Error loading settings: " + e.getMessage());
-        }
-        return null;
     }
 }

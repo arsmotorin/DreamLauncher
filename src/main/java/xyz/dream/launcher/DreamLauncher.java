@@ -2,6 +2,7 @@ package xyz.dream.launcher;
 
 import javafx.application.Application;
 import javafx.stage.Stage;
+import xyz.dream.launcher.managers.Nicknamer;
 
 import java.io.File;
 import java.nio.file.Files;
@@ -13,7 +14,7 @@ public class DreamLauncher extends Application {
     @Override
     public void start(Stage primaryStage) {
         String settingsPath = getSettingsPath();
-        Path settingsFilePath = Paths.get(settingsPath, StartingScreen.SETTINGS_FILE);
+        Path settingsFilePath = Paths.get(settingsPath, Nicknamer.SETTINGS_FILE);
         
         System.out.println("Looking for settings at: " + settingsFilePath);
         
@@ -65,11 +66,11 @@ public class DreamLauncher extends Application {
         String userHome = System.getProperty("user.home");
 
         if (os.contains("win")) {
-            return System.getenv("APPDATA") + File.separator + StartingScreen.SETTINGS_FOLDER;
+            return System.getenv("APPDATA") + File.separator + Nicknamer.SETTINGS_FOLDER;
         } else if (os.contains("mac")) {
-            return userHome + "/Library/Application Support/" + StartingScreen.SETTINGS_FOLDER;
+            return userHome + "/Library/Application Support/" + Nicknamer.SETTINGS_FOLDER;
         } else {
-            return userHome + "/.config/" + StartingScreen.SETTINGS_FOLDER;
+            return userHome + "/.config/" + Nicknamer.SETTINGS_FOLDER;
         }
     }
 }

@@ -2,10 +2,10 @@ plugins {
     id 'java'
     id 'application'
     id 'org.openjfx.javafxplugin' version '0.1.0'
+    id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
 
 group 'org.example'
-version '1.0'
 
 repositories {
     mavenCentral()
@@ -17,14 +17,18 @@ dependencies {
     implementation 'org.slf4j:slf4j-simple:2.0.7'
     implementation 'commons-io:commons-io:2.13.0'
     implementation 'com.google.code.gson:gson:2.10.1'
-    implementation 'org.openjfx:javafx-controls:21.0.2'
-    implementation 'org.openjfx:javafx-fxml:21.0.2'
     implementation 'org.apache.commons:commons-lang3:3.12.0'
+
+    implementation 'org.openjfx:javafx-controls:17.0.15'
+    implementation 'org.openjfx:javafx-fxml:17.0.15'
+    implementation 'org.openjfx:javafx-base:17.0.15'
+    implementation 'org.openjfx:javafx-graphics:17.0.15'
+    implementation 'org.openjfx:javafx-swing:17.0.15'
 }
 
 javafx {
-    version = '21.0.2'
-    modules = [ 'javafx.controls', 'javafx.fxml' ]
+    version = '17.0.15'
+    modules = [ 'javafx.controls', 'javafx.fxml', 'javafx.graphics', 'javafx.swing' ]
 }
 
 application {
@@ -40,4 +44,9 @@ jar {
 tasks.withType(JavaCompile) {
     options.release.set(17)
     options.encoding = 'UTF-8'
+}
+
+shadowJar {
+    archiveClassifier.set('all')
+    mergeServiceFiles()
 }
