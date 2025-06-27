@@ -1,7 +1,6 @@
 package xyz.dream.launcher;
 
 import javafx.animation.KeyFrame;
-import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.concurrent.Task;
@@ -19,6 +18,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import xyz.dream.launcher.managers.Animator;
 import xyz.dream.launcher.managers.Fonter;
 import xyz.dream.launcher.managers.Nicknamer;
 
@@ -26,14 +26,7 @@ import java.util.Objects;
 import java.util.function.UnaryOperator;
 
 public class StartingScreen extends Application {
-    private Image logo;
 
-    /**
-     * The main entry point for the JavaFX application.
-     * It initializes the starting screen with a logo and nickname input field.
-     *
-     * @param primaryStage The primary stage for this application.
-     */
     @Override
     public void start(Stage primaryStage) {
         System.out.println("Starting Dream Launcher...");
@@ -66,7 +59,7 @@ public class StartingScreen extends Application {
         // Load logo
         ImageView logoView = null;
         try {
-            logo = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Images/logo.png")));
+            Image logo = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Images/logo.png")));
             logoView = new ImageView(logo);
             logoView.setX(392);
             logoView.setY(161);
@@ -157,9 +150,7 @@ public class StartingScreen extends Application {
                 finalRightArrowContainer1.setCursor(Cursor.HAND);
             });
 
-            rightArrowContainer.setOnMouseExited(e -> {
-                rightArrowView.setEffect(null);
-            });
+            rightArrowContainer.setOnMouseExited(e -> rightArrowView.setEffect(null));
 
             rightArrowContainer.getChildren().addAll(rightClickArea, rightArrowView);
             root.getChildren().add(rightArrowContainer);
@@ -180,54 +171,18 @@ public class StartingScreen extends Application {
                     // Preload
                     Task<MainScreen> preloadTask = new Task<>() {
                         @Override
-                        protected MainScreen call() throws Exception {
+                        protected MainScreen call() {
                             return new MainScreen();
                         }
                     };
 
                     preloadTask.setOnSucceeded(event -> {
                         MainScreen mainScreen = preloadTask.getValue();
-
-                        // Exit animation
-                        double offsetY = 600;
-                        double durationMillis = 850;
-
-                        Timeline exitTimeline = new Timeline();
-                        if (finalLogoView != null) {
-                            KeyValue kvLogoUp = new KeyValue(finalLogoView.translateYProperty(), -offsetY);
-                            KeyFrame kfLogoUp = new KeyFrame(Duration.millis(durationMillis), kvLogoUp);
-                            exitTimeline.getKeyFrames().add(kfLogoUp);
-                        }
-
-                        KeyValue kvFieldDown = new KeyValue(nickNameField.translateYProperty(), offsetY);
-                        KeyFrame kfFieldDown = new KeyFrame(Duration.millis(durationMillis), kvFieldDown);
-                        exitTimeline.getKeyFrames().add(kfFieldDown);
-
-                        KeyValue kvInputDown = new KeyValue(nickNameInput.translateYProperty(), offsetY);
-                        KeyFrame kfInputDown = new KeyFrame(Duration.millis(durationMillis), kvInputDown);
-                        exitTimeline.getKeyFrames().add(kfInputDown);
-
-                        if (finalRightArrowContainer != null) {
-                            KeyValue kvArrowDown = new KeyValue(finalRightArrowContainer.translateYProperty(), offsetY);
-                            KeyFrame kfArrowDown = new KeyFrame(Duration.millis(durationMillis), kvArrowDown);
-                            exitTimeline.getKeyFrames().add(kfArrowDown);
-                        }
-
-                        exitTimeline.setOnFinished(e -> {
-                            try {
-                                mainScreen.start(primaryStage);
-                            } catch (Exception ex) {
-                                System.err.println("Error transitioning to MainScreen: " + ex.getMessage());
-                                ex.printStackTrace();
-                            }
-                        });
-
-                        exitTimeline.play();
+                        Animator.playExitAnimation(finalLogoView, nickNameField, nickNameInput,
+                                finalRightArrowContainer, mainScreen, primaryStage);
                     });
 
-                    preloadTask.setOnFailed(event -> {
-                        preloadTask.getException().printStackTrace();
-                    });
+                    preloadTask.setOnFailed(event -> preloadTask.getException().printStackTrace());
 
                     // Start the preload task in a separate thread
                     new Thread(preloadTask).start();
@@ -255,40 +210,7 @@ public class StartingScreen extends Application {
         primaryStage.show();
         System.out.println("Application started successfully");
 
-        // Entrance animation
-        double offsetY = 300;
-        double durationMillis = 850;
-        int targetFps = 60;
-        int totalFrames = (int) (durationMillis / 1000 * targetFps);
-
-        double logoStartY = -offsetY;
-        double logoEndY = 0;
-        double fieldStartY = offsetY;
-        double fieldEndY = 0;
-
-        if (logoView != null) logoView.setTranslateY(logoStartY);
-        nickNameField.setTranslateY(fieldStartY);
-        nickNameInput.setTranslateY(fieldStartY);
-        if (rightArrowContainer != null) rightArrowContainer.setTranslateY(fieldStartY);
-
-        Timeline timeline = new Timeline();
-        for (int i = 0; i <= totalFrames; i++) {
-            double t = (double) i / totalFrames;
-            double ease = 0.5 - 0.5 * Math.cos(Math.PI * t);
-
-            double logoY = logoStartY + (logoEndY - logoStartY) * ease;
-            double fieldY = fieldStartY + (fieldEndY - fieldStartY) * ease;
-
-            ImageView finalLogoView = logoView;
-            StackPane finalRightArrowContainer = rightArrowContainer;
-            KeyFrame kf = new KeyFrame(Duration.millis(i * (1000.0 / targetFps)), e -> {
-                if (finalLogoView != null) finalLogoView.setTranslateY(logoY);
-                nickNameField.setTranslateY(fieldY);
-                nickNameInput.setTranslateY(fieldY);
-                if (finalRightArrowContainer != null) finalRightArrowContainer.setTranslateY(fieldY);
-            });
-            timeline.getKeyFrames().add(kf);
-        }
-        timeline.play();
+        // Play entrance animation
+        Animator.playEntranceAnimation(logoView, nickNameField, nickNameInput, rightArrowContainer);
     }
 }
