@@ -10,10 +10,16 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class Nicknamer {
-    
+
     public static final String SETTINGS_FOLDER = ".DreamLauncher";
     public static final String SETTINGS_FILE = "settings.json";
 
+    /**
+     * Loads the nickname from the settings file.
+     * If the file does not exist or the nickname is not set, it returns null.
+     *
+     * @return The nickname as a String, or null if not set.
+     */
     public String loadNickname() {
         try {
             Path settingsFile = Paths.get(getSettingsPath(), SETTINGS_FILE);
@@ -128,6 +134,9 @@ public class Nicknamer {
         }
     }
 
+    /**
+     * @return The path to the settings directory.
+     */
     private String getSettingsPath() {
         String os = System.getProperty("os.name").toLowerCase();
         String userHome = System.getProperty("user.home");

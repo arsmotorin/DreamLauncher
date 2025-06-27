@@ -1,6 +1,5 @@
 package xyz.dream.launcher;
 
-import javafx.animation.FadeTransition;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
@@ -29,6 +28,12 @@ import java.util.function.UnaryOperator;
 public class StartingScreen extends Application {
     private Image logo;
 
+    /**
+     * The main entry point for the JavaFX application.
+     * It initializes the starting screen with a logo and nickname input field.
+     *
+     * @param primaryStage The primary stage for this application.
+     */
     @Override
     public void start(Stage primaryStage) {
         System.out.println("Starting Dream Launcher...");

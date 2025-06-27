@@ -1,3 +1,3 @@
 package xyz.dream.launcher.managers
 
-class Downloader 
+class Downloader

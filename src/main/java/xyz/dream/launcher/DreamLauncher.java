@@ -11,6 +11,12 @@ import java.nio.file.Paths;
 
 public class DreamLauncher extends Application {
 
+    /**
+     * The main entry point for the JavaFX application.
+     * It checks for the existence of a settings file and starts the screen.
+     *
+     * @param primaryStage The primary stage for this application.
+     */
     @Override
     public void start(Stage primaryStage) {
         String settingsPath = getSettingsPath();
@@ -50,16 +56,26 @@ public class DreamLauncher extends Application {
         }
     }
 
+    /**
+     * The main method to launch the JavaFX application.
+     * It sets system properties to resolve rendering pipeline issues.
+     *
+     * @param args Command line arguments.
+     */
     public static void main(String[] args) {
-        // Set JavaFX system properties to resolve rendering pipeline issues
         System.setProperty("javafx.verbose", "true");
         System.setProperty("prism.verbose", "true");
         System.setProperty("prism.order", "sw");
         
-        // Launch the application
         launch(args);
     }
-    
+
+    /**
+     * Returns the path to the settings directory based on the operating system.
+     * This method is used to determine where to look for the settings file.
+     *
+     * @return The path to the settings directory as a String.
+     */
     private static String getSettingsPath() {
         String os = System.getProperty("os.name").toLowerCase();
         String userHome = System.getProperty("user.home");

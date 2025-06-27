@@ -9,12 +9,10 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+
 import xyz.dream.launcher.managers.Fonter;
 import xyz.dream.launcher.managers.Nicknamer;
-import javafx.embed.swing.SwingFXUtils;
 
-import java.awt.image.BufferedImage;
-import java.io.InputStream;
 import java.util.Objects;
 
 public class MainScreen extends Application {

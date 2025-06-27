@@ -2,6 +2,10 @@ package xyz.dream.launcher.managers
 
 import javafx.scene.text.Font
 
+/**
+ * Initializes the Fonter class by loading the Gilroy fonts.
+ * The fonts are loaded from resources and set to the properties.
+ */
 class Fonter {
     var gilroyMedium: Font? = null
         private set
