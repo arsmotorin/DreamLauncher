@@ -38,13 +38,12 @@ public class StartingScreen extends Application {
         scene.setFill(Color.web("#1C1C1C"));
         root.setStyle("-fx-background-color: #1C1C1C;");
 
-        // Application title
         primaryStage.setTitle("Dream Launcher");
         primaryStage.setScene(scene);
         primaryStage.setResizable(false);
         primaryStage.centerOnScreen();
 
-        // Nickname field background
+        // Nickname field
         Rectangle nickNameField = new Rectangle();
         nickNameField.setX(370);
         nickNameField.setY(372);
@@ -54,10 +53,9 @@ public class StartingScreen extends Application {
         nickNameField.setArcWidth(16);
         nickNameField.setArcHeight(16);
 
-        // Add nickNameField to root first (background layer)
         root.getChildren().add(nickNameField);
 
-        // Load logo
+        // Logo
         ImageView logoView = null;
         try {
             Image logo = new Image(Objects.requireNonNull(getClass().getResourceAsStream("/Images/logo.png")));
@@ -98,16 +96,11 @@ public class StartingScreen extends Application {
         TextFormatter<String> textFormatter = new TextFormatter<>(filter);
         nickNameInput.setTextFormatter(textFormatter);
 
-        // Remove automatic focus traversal
         nickNameInput.setFocusTraversable(false);
 
-        // Create a Nicknamer instance for nickname management
         Nicknamer nicknamer = new Nicknamer();
-
-        // Folderer instance for folder management
         Folderer folderer = new Folderer();
 
-        // Load saved nickname if available
         String savedNickname = nicknamer.loadNickname();
         if (savedNickname != null && !savedNickname.isEmpty()) {
             nickNameInput.setText(savedNickname);
@@ -116,7 +109,6 @@ public class StartingScreen extends Application {
             nickNameInput.setPromptText("Enter your nickname");
         }
 
-        // Remove focus when clicking elsewhere
         root.setOnMouseClicked(event -> {
             if (!nickNameInput.getBoundsInParent().contains(event.getX(), event.getY())) {
                 nickNameInput.getParent().requestFocus();
@@ -126,7 +118,6 @@ public class StartingScreen extends Application {
             }
         });
 
-        // Add nickNameInput to the root
         root.getChildren().add(nickNameInput);
 
         // Right arrow button
@@ -188,7 +179,6 @@ public class StartingScreen extends Application {
 
                     preloadTask.setOnFailed(event -> preloadTask.getException().printStackTrace());
 
-                    // Start the preload task in a separate thread
                     new Thread(preloadTask).start();
                 } else {
                     System.out.println("Invalid nickname entered: " + currentNickname);
@@ -210,11 +200,9 @@ public class StartingScreen extends Application {
             e.printStackTrace();
         }
 
-        // Show the stage
         primaryStage.show();
         System.out.println("Application started successfully");
 
-        // Play entrance animation
         Animator.playEntranceAnimation(logoView, nickNameField, nickNameInput, rightArrowContainer);
     }
 }

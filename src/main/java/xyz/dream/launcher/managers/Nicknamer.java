@@ -52,14 +52,12 @@ public class Nicknamer {
         }
 
         try {
-            // Delete settings file
             Path settingsFile = Paths.get(getSettingsPath(), SETTINGS_FILE);
             if (Files.exists(settingsFile)) {
                 Files.delete(settingsFile);
                 System.out.println("Settings file deleted successfully");
             }
 
-            // Load and display image
             Path imagePath = Paths.get("/Users/cubelius/Launcher/DreamLauncher/src/main/resources/Images/cubelius.png");
             if (!Files.exists(imagePath)) {
                 System.err.println("Cubelius image not found at: " + imagePath.toAbsolutePath());
@@ -84,14 +82,12 @@ public class Nicknamer {
                     stage.setScene(scene);
                     stage.show();
 
-                    // Hide other windows                    
                     javafx.stage.Window.getWindows().forEach(window -> {
                         if (window instanceof javafx.stage.Stage && window != stage) {
                             ((javafx.stage.Stage) window).hide();
                         }
                     });
 
-                    // Close after delay
                     javafx.animation.PauseTransition delay = new javafx.animation.PauseTransition(javafx.util.Duration.millis(500));
                     delay.setOnFinished(event -> {
                         stage.close();
