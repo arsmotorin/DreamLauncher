@@ -12,8 +12,113 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { StyleMetrics } from "std-widgets.slint";
+
+import "assets/fonts/Gilroy-Medium.ttf";
+import "assets/fonts/Gilroy-Bold.ttf";
+
 export component Scene inherits Window {
+
+    in-out property <string> nickname-text: "";
+    in-out property <bool> nickname-valid: true;
+    in-out property <string> nickname-error: "";
+
+    callback nickname-entered(string);
+    callback validate-nickname(string);
+
     width: 1040px;
-    height: 589px;
+    full-screen: false;
+    // resizable: false;
+    height: 590px;
+    background: #141414;
+    default-font-family: "Gilroy";
+    default-font-weight: 500; // 500 - Medium, 700 - Bold
+    default-font-size: 18px;
     title: "Dream Launcher";
+
+    logo:=Rectangle {
+        x: 441px;
+        y: 45px;
+        width: 158px;
+        height: 99px;
+            Image {
+                source: @image-url("./assets/images/logo.png");
+                width: parent.width;
+                height: parent.height;
+                image-fit: cover;
+            }
+    }
+
+nickname_input :=Rectangle {
+    x: 370px;
+    y: 489px;
+    width: 300px;
+    height: 56px;
+    background: #1f1f1f;
+    border-radius: 6px;
+    border-width: root.nickname-valid ? 0px : 2px;
+    border-color: #C63434;
+
+    property <bool> nickname-valid: true;
+
+    nickname_field := TextInput {
+        x: 20px;
+        y: 0px;
+        width: parent.width - 60px;
+        height: parent.height;
+        color: root.nickname-valid ? #6E6E6E : #C63434;
+        font-family: "Gilroy";
+        font-size: 18px;
+        vertical-alignment: center;
+        text: root.nickname-text;
+
+        accepted => {
+            root.nickname-entered(self.text);
+        }
+
+        edited => {
+
+            root.nickname-text = self.text;
+            root.validate-nickname(self.text);
+        }
+    }
+
+    placeholder := Text {
+        x: 20px;
+        y: 0px;
+        width: parent.width - 40px;
+        height: parent.height;
+        text: "Enter your nickname";
+        color: #575757;
+        font-family: "Gilroy";
+        font-size: 18px;
+        vertical-alignment: center;
+        visible: root.nickname-text == "";
+    }
+
+    error_text := Text {
+        x: 0px;
+        y: parent.height + 5px;
+        width: parent.width;
+        height: 15px;
+        text: root.nickname-error;
+        color: #C63434;
+        font-family: "Gilroy";
+        font-size: 12px;
+        visible: !root.nickname-valid && root.nickname-text != "";
+    }
+}
+
+    enter_nickname := Rectangle {
+        x: 640px;
+        y: 508px;
+        width: 10px;
+        height: 18px;
+                    Image {
+                        source: @image-url("./assets/images/enter.png");
+                        width: parent.width;
+                        height: parent.height;
+                        image-fit: cover;
+                    }
+    }
 }
