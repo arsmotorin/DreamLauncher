@@ -13,4 +13,5 @@
 // limitations under the License.
 
 fn nicknamer() -> Result<(), slint::PlatformError> {
+    Ok(())
 }

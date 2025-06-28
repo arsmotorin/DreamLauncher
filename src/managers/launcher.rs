@@ -13,4 +13,5 @@
 // limitations under the License.
 
 fn launcher() -> Result<(), slint::PlatformError> {
+    Ok(())
 }
