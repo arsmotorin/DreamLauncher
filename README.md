@@ -1,5 +1,5 @@
 # Dream Launcher
 
-Dream Launcher — это простой и удобный лаунчер для Minecraft. На данный момент проект находится в активной разработке.
+Dream Launcher is a simple and lightweight launcher for Minecraft. At the moment the project is in active development.
 
-Следите за новостями!
+Keep an eye on the news!
