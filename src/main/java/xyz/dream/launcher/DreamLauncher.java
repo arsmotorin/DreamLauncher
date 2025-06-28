@@ -56,12 +56,6 @@ public class DreamLauncher extends Application {
         }
     }
 
-    /**
-     * The main method to launch the JavaFX application.
-     * It sets system properties to resolve rendering pipeline issues.
-     *
-     * @param args Command line arguments.
-     */
     public static void main(String[] args) {
         System.setProperty("javafx.verbose", "true");
         System.setProperty("prism.verbose", "true");
@@ -70,12 +64,6 @@ public class DreamLauncher extends Application {
         launch(args);
     }
 
-    /**
-     * Returns the path to the settings directory based on the operating system.
-     * This method is used to determine where to look for the settings file.
-     *
-     * @return The path to the settings directory as a String.
-     */
     private static String getSettingsPath() {
         String os = System.getProperty("os.name").toLowerCase();
         String userHome = System.getProperty("user.home");

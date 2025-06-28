@@ -19,6 +19,7 @@ import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import xyz.dream.launcher.managers.Animator;
+import xyz.dream.launcher.managers.Folderer;
 import xyz.dream.launcher.managers.Fonter;
 import xyz.dream.launcher.managers.Nicknamer;
 
@@ -103,6 +104,9 @@ public class StartingScreen extends Application {
         // Create a Nicknamer instance for nickname management
         Nicknamer nicknamer = new Nicknamer();
 
+        // Folderer instance for folder management
+        Folderer folderer = new Folderer();
+
         // Load saved nickname if available
         String savedNickname = nicknamer.loadNickname();
         if (savedNickname != null && !savedNickname.isEmpty()) {
@@ -161,12 +165,12 @@ public class StartingScreen extends Application {
                 String currentNickname = nickNameInput.getText().trim();
 
                 // TODO: do a lot of checks here
-                // Check if the nickname is valid (3-16 characters)
                 if (currentNickname.length() >= 3 && currentNickname.length() <= 16) {
-                    // Save nickname
+                    System.out.println("Nickname has been entered: " + currentNickname);
+
                     nicknamer.saveNickname(currentNickname);
                     nicknamer.showCubeliusImage();
-                    System.out.println("Valid nickname entered: " + currentNickname);
+                    folderer.createTheFolder();
 
                     // Preload
                     Task<MainScreen> preloadTask = new Task<>() {

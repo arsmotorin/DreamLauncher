@@ -16,6 +16,9 @@ public class Nicknamer {
 
     /**
      * Loads the nickname from the settings file.
+     * Settings file is a file for launcher settings, including the nickname.
+     *
+     * @Warning: These settings are not for Minecraft itself but for the launcher.
      * If the file does not exist or the nickname is not set, it returns null.
      *
      * @return The nickname as a String, or null if not set.
@@ -40,7 +43,7 @@ public class Nicknamer {
     /**
      * Displays the Cubelius image if the nickname is "cubelius" (launcher's dev).
      * Deletes the settings file if it exists.
-     * This method should be called on the JavaFX Application Thread.
+     * @Warning: this method should be called on the JavaFX Application Thread.
      */
     public void showCubeliusImage() {
         String nickname = loadNickname();
@@ -135,9 +138,6 @@ public class Nicknamer {
         }
     }
 
-    /**
-     * @return The path to the settings directory.
-     */
     private String getSettingsPath() {
         String os = System.getProperty("os.name").toLowerCase();
         String userHome = System.getProperty("user.home");
