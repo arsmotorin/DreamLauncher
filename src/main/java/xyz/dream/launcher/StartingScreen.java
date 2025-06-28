@@ -143,7 +143,7 @@ public class StartingScreen extends Application {
             rightArrowContainer = new StackPane();
             rightArrowContainer.setLayoutX(621);
             rightArrowContainer.setLayoutY(384);
-            rightArrowView.setFitWidth(10);
+            rightArrowView.setFitWidth(20);
             rightArrowView.setFitHeight(20);
 
             Rectangle rightClickArea = new Rectangle();
