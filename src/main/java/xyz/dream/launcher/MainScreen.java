@@ -1,5 +1,7 @@
 package xyz.dream.launcher;
 
+import javafx.animation.Interpolator;
+import javafx.animation.ScaleTransition;
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -10,6 +12,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 
+import javafx.util.Duration;
 import xyz.dream.launcher.managers.Fonter;
 import xyz.dream.launcher.managers.Nicknamer;
 
@@ -43,6 +46,26 @@ public class MainScreen extends Application {
             logoView.setY(62);
             logoView.setFitWidth(128);
             logoView.setFitHeight(80);
+
+            logoView.setCursor(javafx.scene.Cursor.HAND);
+            logoView.setMouseTransparent(false);
+
+            logoView.setOnMouseEntered(event -> {
+                ScaleTransition st = new ScaleTransition(Duration.seconds(0.2), logoView);
+                st.setToX(1.05);
+                st.setToY(1.05);
+                st.setInterpolator(Interpolator.SPLINE(0.1, 0.1, 0.7, 1.0));
+                st.play();
+            });
+
+            logoView.setOnMouseExited(event -> {
+                ScaleTransition st = new ScaleTransition(Duration.seconds(0.2), logoView);
+                st.setToX(1.0);
+                st.setToY(1.0);
+                st.setInterpolator(Interpolator.SPLINE(0.1, 0.1, 0.7, 1.0));
+                st.play();
+            });
+
             root.getChildren().add(logoView);
         } catch (Exception e) {
             System.err.println("Error when loading the logo: " + e.getMessage());
@@ -67,7 +90,7 @@ public class MainScreen extends Application {
         root.getChildren().add(launcherText);
 
         // Description text
-        Text desctiptionText = new Text("Launcher for Frogdream players");
+        Text desctiptionText = new Text("Launcher for you");
         desctiptionText.setX(231);
         desctiptionText.setY(122);
 
@@ -90,6 +113,8 @@ public class MainScreen extends Application {
         playButton.setFill(Color.web("#5AC40F"));
         playButton.setArcWidth(24);
         playButton.setArcHeight(24);
+        playButton.setCursor(javafx.scene.Cursor.HAND);
+        playButton.setMouseTransparent(false);
 
         root.getChildren().add(playButton);
 
@@ -99,8 +124,27 @@ public class MainScreen extends Application {
         playIcon.setFitHeight(24);
         playIcon.setLayoutX(84);
         playIcon.setLayoutY(200);
+        playIcon.setCursor(javafx.scene.Cursor.HAND);
+        playIcon.setMouseTransparent(false);
 
         root.getChildren().add(playIcon);
+
+        // Play text
+        Text playText = new Text("Play 1.21.6");
+        playText.setX(125);
+        playText.setY(217);
+        if (fonter.getGilroyMedium() != null) {
+            playText.setFont(fonter.getGilroyMedium());
+            playText.setStyle("-fx-font-size: 18;");
+            playText.setFill(javafx.scene.paint.Color.web("#FFFFFF"));
+        } else {
+            playText.setFont(Font.font("Arial", 16));
+        }
+
+        playText.setCursor(javafx.scene.Cursor.HAND);
+        playText.setMouseTransparent(false);
+
+        root.getChildren().add(playText);
 
         // Game folder button
         Rectangle gameFolderButton = new Rectangle();
@@ -112,6 +156,9 @@ public class MainScreen extends Application {
         gameFolderButton.setArcWidth(24);
         gameFolderButton.setArcHeight(24);
 
+        gameFolderButton.setCursor(javafx.scene.Cursor.HAND);
+        gameFolderButton.setMouseTransparent(false);
+
         root.getChildren().add(gameFolderButton);
 
         // Game folder icon
@@ -120,6 +167,9 @@ public class MainScreen extends Application {
         gameFolderIcon.setFitHeight(24);
         gameFolderIcon.setLayoutX(388);
         gameFolderIcon.setLayoutY(200);
+
+        gameFolderIcon.setCursor(javafx.scene.Cursor.HAND);
+        gameFolderIcon.setMouseTransparent(false);
 
         root.getChildren().add(gameFolderIcon);
 
@@ -133,6 +183,9 @@ public class MainScreen extends Application {
         settingsButton.setArcWidth(24);
         settingsButton.setArcHeight(24);
 
+        settingsButton.setCursor(javafx.scene.Cursor.HAND);
+        settingsButton.setMouseTransparent(false);
+
         root.getChildren().add(settingsButton);
 
         // Settings icon
@@ -141,6 +194,9 @@ public class MainScreen extends Application {
         settingsIcon.setFitHeight(24);
         settingsIcon.setLayoutX(460);
         settingsIcon.setLayoutY(200);
+
+        settingsIcon.setCursor(javafx.scene.Cursor.HAND);
+        settingsIcon.setMouseTransparent(false);
 
         root.getChildren().add(settingsIcon);
 
@@ -194,8 +250,8 @@ public class MainScreen extends Application {
 
         int playtime1 = 100;
         String playtime = String.valueOf(playtime1);
-        Text playtimeText = new Text("Наиграно: " + playtime + " ч.");
-        playtimeText.setX(124);
+        Text playtimeText = new Text("Playtime: " + playtime + " ч.");
+        playtimeText.setX(123);
         playtimeText.setY(523);
         if (fonter.getGilroyMedium() != null) {
             playtimeText.setFont(fonter.getGilroyMedium());

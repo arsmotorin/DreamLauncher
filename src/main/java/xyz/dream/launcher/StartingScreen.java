@@ -109,7 +109,7 @@ public class StartingScreen extends Application {
             nickNameInput.setText(savedNickname);
             System.out.println("Loaded saved nickname: " + savedNickname);
         } else {
-            nickNameInput.setPromptText("Введи свой ник");
+            nickNameInput.setPromptText("Enter your nickname");
         }
 
         // Remove focus when clicking elsewhere
@@ -117,7 +117,7 @@ public class StartingScreen extends Application {
             if (!nickNameInput.getBoundsInParent().contains(event.getX(), event.getY())) {
                 nickNameInput.getParent().requestFocus();
                 if (nickNameInput.getText().isEmpty()) {
-                    nickNameInput.setPromptText("Введи свой ник");
+                    nickNameInput.setPromptText("Enter your nickname");
                 }
             }
         });
