@@ -12,5 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-fn animator() -> Result<(), slint::PlatformError> {
+// Compilation of Slint UI files to the Rust code
+fn main() {
+    slint_build::compile("ui/main.slint").unwrap();
 }
