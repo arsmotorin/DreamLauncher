@@ -18,13 +18,13 @@ import "assets/fonts/Gilroy-Medium.ttf";
 import "assets/fonts/Gilroy-Bold.ttf";
 
 export component Scene inherits Window {
+
     in-out property <string> nickname-text: "";
-    in-out property <bool>   nickname-valid: true;
+    in-out property <bool> nickname-valid: true;
     in-out property <string> nickname-error: "";
 
-    callback nickname-entered(text: string);
-    callback validate-nickname(text: string) -> string;
-    callback nickname-changed(text: string);
+    callback nickname-entered(string);
+    callback validate-nickname(string);
 
     width: 1040px;
     full-screen: false;
@@ -49,39 +49,44 @@ export component Scene inherits Window {
             }
     }
 
-nickname_box := Rectangle {
-    x: 370px; y: 489px;
-    width: 300px; height: 56px;
+nickname_input :=Rectangle {
+    x: 370px;
+    y: 489px;
+    width: 300px;
+    height: 56px;
     background: #1f1f1f;
     border-radius: 6px;
     border-width: root.nickname-valid ? 0px : 2px;
     border-color: #C63434;
 
-    nickname_input := TextInput {
-        x: 20px; y: 0px;
+    property <bool> nickname-valid: true;
+
+    nickname_field := TextInput {
+        x: 20px;
+        y: 0px;
         width: parent.width - 60px;
         height: parent.height;
-        text: root.nickname-text;
         color: root.nickname-valid ? #6E6E6E : #C63434;
         font-family: "Gilroy";
         font-size: 18px;
         vertical-alignment: center;
+        text: root.nickname-text;
 
-            edited => {
-
-                root.nickname-text = self.text;
-                root.validate-nickname(self.text);
-                root.nickname-changed(self.text);
-            }
-            accepted => {
-                root.nickname-entered(self.text);
-            }
+        accepted => {
+            root.nickname-entered(self.text);
         }
+
+        edited => {
+
+            root.nickname-text = self.text;
+            root.validate-nickname(self.text);
+        }
+    }
 
     placeholder := Text {
         x: 20px;
         y: 0px;
-        width: parent.width - 100px;
+        width: parent.width - 40px;
         height: parent.height;
         text: "Enter your nickname";
         color: #575757;

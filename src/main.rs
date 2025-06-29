@@ -13,61 +13,66 @@
 // limitations under the License.
 
 mod managers;
-use slint::{ComponentHandle, SharedString};
+use slint::ComponentHandle;
 use regex::Regex;
 
 slint::include_modules!();
 
 // Main function
-
 fn main() -> Result<(), slint::PlatformError> {
+
+    // Create the UI window
     let ui = Scene::new()?;
-    
-    // Nickname input handling
-    let ui_weak = ui.as_weak();
-    ui.on_validate_nickname(move |new_text: SharedString| {
-        let ui = ui_weak.unwrap();
-        let mut nick = new_text.to_string();
 
-        // Fucking Slint, why don't you have a way to set the max length of a text input?
-        let max_chars = 16;
-        if nick.chars().count() > max_chars {
-            nick = nick.chars().take(max_chars).collect();
-            ui.set_nickname_text(SharedString::from(&nick));
-        }
+    // When a user types in the nickname field, we want to validate it and update the UI. 
+    // We use a weak reference to avoid borrowing issues
+    let ui_handle = ui.as_weak();
+    ui.on_validate_nickname(move |nickname| {
+        let ui = ui_handle.unwrap();
 
-        println!("Nickname changed: {}", nick);
+        // Check if the nickname is valid
+        let (is_valid, error_msg) = validate_nickname(&nickname);
 
-        let (is_valid, error_msg) = validate_nickname(&nick);
+        // Update the UI with results
         ui.set_nickname_valid(is_valid);
         ui.set_nickname_error(error_msg.into());
-
-        // Return the validated nickname
-        SharedString::from(nick)
     });
 
-    // Callback for when the nickname is entered
-    let ui_weak2 = ui.as_weak();
+    // Setup what happens when a user presses Enter
+    let ui_handle = ui.as_weak();
     ui.on_nickname_entered(move |nickname| {
-        let ui = ui_weak2.unwrap();
+        ui_handle.unwrap();
         let (is_valid, _) = validate_nickname(&nickname);
+
         if is_valid {
             println!("Valid nickname: {}", nickname);
-        } else if nickname.eq_ignore_ascii_case("cubelius") {
+
+            // TODO: enter to the next screen
+
+        } else if nickname == "cubelius" || nickname == "Cubelius" {
+
+            // TODO: do this old meme
             std::process::exit(0);
         } else {
-            println!("Invalid nickname: {}", nickname);
+            println!("Invalid nickname: {}", nickname)
         }
-    });
-
+    }); 
+    
+    // Start the application
     ui.run()
 }
 
 // Function that checks if the nickname is valid
 fn validate_nickname(nickname: &str) -> (bool, &'static str) {
+
     // Too short
     if nickname.len() < 3 {
         return (false, "Minimum 3 characters");
+    }
+
+    // Too long
+    if nickname.len() > 16 {
+        return (false, "Maximum 16 characters");
     }
 
     // Contains only allowed characters
