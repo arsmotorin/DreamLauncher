@@ -1,5 +1,5 @@
 mod creeper;
 
 fn main() {
-    creeper::creeper::main();
+    let _ = creeper::creeper::main();
 }
