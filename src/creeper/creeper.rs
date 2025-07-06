@@ -1,15 +1,13 @@
+// main.rs
 use std::io::{self, Write};
 use std::path::Path;
-use std::sync::Arc;
 
 use reqwest::Client;
 use tokio::process::Command;
+use tokio::try_join;
 
 use crate::creeper::java_config::JavaConfig;
-use crate::creeper::minecraft_models::{
-    AssetIndex, Library, VersionDetails, VersionManifest,
-};
-use crate::creeper::progress_bar::ProgressBar;
+use crate::creeper::minecraft_models::{VersionDetails, VersionManifest};
 use crate::creeper::downloader::Downloader;
 use crate::creeper::filesystem::FileSystem;
 
@@ -23,7 +21,7 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Launcher by cubelius\nCommands: boom, exit");
 
     let client = Client::builder()
-        .pool_max_idle_per_host(16)
+        .pool_max_idle_per_host(64)
         .timeout(std::time::Duration::from_secs(90))
         .build()?;
     let minecraft_dir = Path::new(".minecraft");
@@ -42,8 +40,6 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
             "boom" => {
                 if let Err(e) = start_minecraft(&downloader, &fs, &minecraft_dir).await {
                     eprintln!("Failed to start Minecraft: {}", e);
-                } else {
-                    println!("Minecraft launched successfully");
                 }
             }
             cmd => println!("Unknown command: '{}'. Available: boom, exit", cmd),
@@ -88,27 +84,30 @@ async fn start_minecraft(
     let libraries_dir = minecraft_dir.join("libraries");
     let client_jar_path = versions_dir.join(format!("{}.jar", version));
 
-    if !fs.exists(&client_jar_path) {
-        println!("Downloading Minecraft client from {}", version_details.downloads.client.url);
-        downloader
-            .download_file_if_not_exists(
-                &version_details.downloads.client.url,
-                &client_jar_path,
-                None,
-                None,
-            )
-            .await?;
-        println!("Client downloaded");
+    // Parallel download of the client jar if it doesn't exist
+    let client_jar_fut = if !fs.exists(&client_jar_path) {
+        Some(downloader.download_file_if_not_exists(
+            &version_details.downloads.client.url,
+            &client_jar_path,
+            None,
+            None,
+        ))
     } else {
         println!("Client already exists at {}", client_jar_path.display());
-    }
+        None
+    };
 
-    downloader
-        .download_libraries(&version_details.libraries, &libraries_dir)
-        .await?;
-    downloader
-        .download_assets(&version_details.asset_index, minecraft_dir)
-        .await?;
+    let libs_fut = downloader.download_libraries(&version_details.libraries, &libraries_dir);
+    let assets_fut = downloader.download_assets(&version_details.asset_index, minecraft_dir);
+
+    if let Some(fut) = client_jar_fut {
+        // Download client jar, libraries, and assets in parallel
+        try_join!(fut, libs_fut, assets_fut)?;
+        println!("Client downloaded");
+    } else {
+        // Only libraries and assets are downloaded
+        try_join!(libs_fut, assets_fut)?;
+    }
 
     println!("Building classpath...");
     let classpath = fs.build_classpath(&libraries_dir, &client_jar_path)?;

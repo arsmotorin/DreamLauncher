@@ -1,6 +1,5 @@
-// downloader.rs
 use std::collections::HashSet;
-use std::path::{Path, PathBuf};
+use std::path::{Path};
 use std::sync::Arc;
 
 use futures::{stream, StreamExt};
@@ -158,7 +157,7 @@ impl Downloader {
                         .map_err(|e| format!("Failed to download asset {}: {}", url, e))
                 }
             })
-            .buffer_unordered(48)
+            .buffer_unordered(32)
             .collect()
             .await;
 
@@ -215,7 +214,7 @@ impl Downloader {
                         .map_err(|e| format!("Failed to download library {}: {}", artifact.url, e))
                 }
             })
-            .buffer_unordered(10)
+            .buffer_unordered(48)
             .collect()
             .await;
 
