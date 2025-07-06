@@ -2,28 +2,30 @@ use std::path::Path;
 use tokio::process::Command;
 use std::process::Stdio;
 
-// Configuration for the Java command to launch Minecraft
+/// Configuration for the Java command to launch Minecraft.
+///
+/// This struct holds the JVM arguments, platform-specific arguments, and game arguments.
 pub struct JavaConfig {
     jvm_args: Vec<String>,
     platform_args: Vec<String>,
     game_args: Vec<(String, String)>,
 }
 
+/// Implementation of the JavaConfig struct.
+///
+/// Provides methods to create a new configuration and build the command to launch Minecraft.
 impl JavaConfig {
+    /// Creates a new JavaConfig with default JVM, platform, and game arguments.
+    ///
+    /// # Returns
+    /// A new instance of JavaConfig with pre-filled arguments suitable for launching Minecraft.
     pub fn new() -> Self {
         let jvm_args = vec![
             "-Xmx4G".to_string(),
             "-Xms1G".to_string(),
-            "-XX:+UseShenandoahGC".to_string(),
-            "-XX:+ParallelRefProcEnabled".to_string(),
-            "-XX:+UnlockExperimentalVMOptions".to_string(),
-            "-XX:+UseStringDeduplication".to_string(),
-            "-XX:+OptimizeStringConcat".to_string(),
-            "-XX:+UseCompressedOops".to_string(),
-            "-XX:+TieredCompilation".to_string(),
-            "-XX:TieredStopAtLevel=1".to_string(),
         ];
 
+        // On macOS, we need to start the JVM on the first thread to avoid issues with OpenGL
         let platform_args = if cfg!(target_os = "macos") {
             vec!["-XstartOnFirstThread".to_string()]
         } else {
@@ -46,7 +48,16 @@ impl JavaConfig {
         }
     }
 
-    // Build the Java command with classpath, main class, and game directory
+    /// Builds the command to launch Minecraft with the specified parameters.
+    ///
+    /// # Arguments
+    /// * `classpath` - The classpath for the Minecraft application.
+    /// * `main_class` - The main class to run (usually "net.minecraft.client.main.Main").
+    /// * `minecraft_dir` - The directory where Minecraft is located.
+    /// * `asset_index_id` - The ID of the asset index to use.
+    ///
+    /// # Returns
+    /// A `Command` object that can be used to run the Minecraft application.
     pub fn build_command(
         &self,
         classpath: &str,

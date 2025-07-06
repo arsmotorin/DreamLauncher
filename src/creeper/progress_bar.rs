@@ -3,7 +3,8 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::Arc;
 use tokio::time;
 
-// Progress bar for tracking download progress
+/// A simple progress bar for tracking the completion of tasks.
+/// This only works in a terminal environment.
 pub struct ProgressBar {
     total: usize,
     completed: Arc<AtomicUsize>,

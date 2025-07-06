@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
+/// Minecraft models for handling version manifests, version details, and asset indices.
+/// These structs are used to deserialize JSON data from the Minecraft API.
 #[derive(Deserialize)]
 pub struct VersionManifest {
     pub versions: Vec<VersionInfo>,

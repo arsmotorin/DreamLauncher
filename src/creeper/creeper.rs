@@ -12,12 +12,23 @@ use tokio::process::Command;
 
 use crate::creeper::java_config::JavaConfig;
 use crate::creeper::minecraft_models::{
-    Artifact, AssetIndex, AssetIndexManifest, AssetObject, DownloadInfo, Downloads, Library,
-    LibraryDownloads, VersionDetails, VersionInfo, VersionManifest,
+    AssetIndex, AssetIndexManifest, Library, VersionDetails, VersionManifest,
 };
 use crate::creeper::progress_bar::ProgressBar;
 
-// Download the file if it doesn't exist, verify size if provided
+/// Downloads a file from the given URL if it does not already exist at the specified path.
+/// Optionally verifies the file size if `expected_size` is provided.
+/// Updates the provided `progress_bar` if present.
+///
+/// # Arguments
+/// * `client` - The HTTP client to use for downloading.
+/// * `url` - The URL of the file to download.
+/// * `path` - The local path where the file should be saved.
+/// * `expected_size` - Optional expected file size for verification.
+/// * `progress_bar` - Optional progress bar to update.
+///
+/// # Errors
+/// Returns an error if the download fails, the file size does not match, or writing to disk fails.
 async fn download_file_if_not_exists(
     client: &Client,
     url: &str,
@@ -59,7 +70,16 @@ async fn download_file_if_not_exists(
     Ok(())
 }
 
-// Download and cache assets
+/// Downloads and caches all Minecraft assets as specified in the given `asset_index`.
+/// Downloads the asset index manifest if not already cached, and then downloads all unique asset objects in parallel.
+///
+/// # Arguments
+/// * `client` - The HTTP client to use for downloading.
+/// * `asset_index` - The asset index information.
+/// * `minecraft_dir` - The root directory of the Minecraft installation.
+///
+/// # Errors
+/// Returns an error if any asset or the index manifest fails to download or parse.
 async fn download_assets(
     client: &Client,
     asset_index: &AssetIndex,
@@ -139,12 +159,21 @@ async fn download_assets(
         }
         eprintln!("Warning: {} assets failed to download", errors.len());
     } else {
-        println!("All assets downloaded successfully");
+        println!("\nAll assets downloaded successfully");
     }
     Ok(())
 }
 
-// Download libraries in parallel
+/// Downloads all required Minecraft libraries in parallel.
+/// Only downloads libraries that have a valid artifact download entry.
+///
+/// # Arguments
+/// * `client` - The HTTP client to use for downloading.
+/// * `libraries` - The list of libraries to download.
+/// * `libraries_dir` - The directory where libraries should be stored.
+///
+/// # Errors
+/// Returns an error if any library fails to download.
 async fn download_libraries(
     client: &Client,
     libraries: &[Library],
@@ -177,7 +206,7 @@ async fn download_libraries(
                     .map_err(|e| format!("Failed to download library {}: {}", artifact.url, e))
             }
         })
-        .buffer_unordered(16)
+        .buffer_unordered(32)
         .collect()
         .await;
 
@@ -191,12 +220,18 @@ async fn download_libraries(
         }
         eprintln!("Warning: {} libraries failed to download", errors.len());
     } else {
-        println!("All libraries downloaded successfully");
+        println!("\nAll libraries downloaded successfully");
     }
     Ok(())
 }
 
-// Create the necessary directories
+/// Ensures that all necessary Minecraft directories exist, creating them if needed.
+///
+/// # Arguments
+/// * `minecraft_dir` - The root directory of the Minecraft installation.
+///
+/// # Errors
+/// Returns an error if any directory cannot be created.
 fn ensure_minecraft_directory(minecraft_dir: &Path) -> Result<(), Box<dyn std::error::Error>> {
     for subdir in ["libraries", "versions", "assets/objects", "assets/indexes"] {
         fs::create_dir_all(minecraft_dir.join(subdir))?;
@@ -204,7 +239,14 @@ fn ensure_minecraft_directory(minecraft_dir: &Path) -> Result<(), Box<dyn std::e
     Ok(())
 }
 
-// Build classpath for Java command
+/// Builds the Java classpath string by collecting all JAR files in the libraries directory and appending the client JAR.
+///
+/// # Arguments
+/// * `libraries_dir` - The directory containing library JARs.
+/// * `client_jar_path` - The path to the Minecraft client JAR.
+///
+/// # Errors
+/// Returns an error if the classpath cannot be constructed.
 fn build_classpath(libraries_dir: &Path, client_jar_path: &Path) -> Result<String, Box<dyn std::error::Error>> {
     let mut classpath = String::new();
     let pattern = format!("{}/**/*.jar", libraries_dir.display());
@@ -215,6 +257,11 @@ fn build_classpath(libraries_dir: &Path, client_jar_path: &Path) -> Result<Strin
     Ok(classpath)
 }
 
+/// The main entry point for the launcher.
+/// Handles user input and launches Minecraft as requested.
+///
+/// # Errors
+/// Returns an error if any operation fails.
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Launcher by cubelius\nCommands: start, exit");
@@ -246,7 +293,14 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-// Launch Minecraft
+/// Downloads all required files and launches Minecraft for the specified version.
+///
+/// # Arguments
+/// * `client` - The HTTP client to use for downloading.
+/// * `minecraft_dir` - The root directory of the Minecraft installation.
+///
+/// # Errors
+/// Returns an error if any step in the process fails.
 async fn start_minecraft(client: &Client, minecraft_dir: &Path) -> Result<(), Box<dyn std::error::Error>> {
     let version = "1.21.7";
     let manifest_url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
@@ -287,9 +341,7 @@ async fn start_minecraft(client: &Client, minecraft_dir: &Path) -> Result<(), Bo
 
     println!("Building classpath...");
     let classpath = build_classpath(&libraries_dir, &client_jar_path)?;
-    println!("Classpath built");
 
-    println!("Checking Java version...");
     let java_version = Command::new("java").arg("-version").output().await?;
     println!("Java version: {:?}", String::from_utf8_lossy(&java_version.stderr));
 
