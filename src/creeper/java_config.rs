@@ -15,18 +15,15 @@ impl JavaConfig {
     /// Creates a new JavaConfig for launching Minecraft.
     pub fn new() -> Self {
         let jvm_args = vec![
-            "-Xmx4G".to_string(),
-            "-Xms4G".to_string(),
+            "-Xmx4096M".to_string(),
+            "-Xms128M".to_string(),
             "-XX:+TieredCompilation".to_string(),
-            "-XX:TieredStopAtLevel=1".to_string(),
-            "-XX:+UseCompressedOops".to_string(),
-            "-Djava.awt.headless=true".to_string(),
+            "-XX:+UnlockExperimentalVMOptions".to_string(),
             "-XX:+DisableExplicitGC".to_string(),
             "-XX:+AlwaysPreTouch".to_string(),
             "-XX:+OptimizeStringConcat".to_string(),
-            "-XX:+UseStringDeduplication".to_string(),
-            "-XX:+UnlockExperimentalVMOptions".to_string(),
-            "-XX:+TrustFinalNonStaticFields".to_string(),
+            "-Dsun.stdout.encoding=UTF-8".to_string(),
+            "-Dsun.stderr.encoding=UTF-8".to_string(),
         ];
 
         let platform_args = if cfg!(target_os = "macos") {
