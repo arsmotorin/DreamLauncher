@@ -1,7 +1,8 @@
 use std::io::{self, Write};
 use std::path::Path;
-
-use tokio::process::Command;
+use tokio::io::{AsyncBufReadExt, BufReader};
+use tokio::process::{Child, Command};
+use std::time::Instant;
 use tokio::try_join;
 
 use crate::creeper::java_config::JavaConfig;
@@ -52,6 +53,8 @@ async fn start_minecraft(
     fs: &FileSystem,
     minecraft_dir: &Path,
 ) -> Result<(), Box<dyn std::error::Error>> {
+    let start_time = Instant::now();
+
     let version = "1.21.7";
     let manifest_url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 
@@ -111,8 +114,57 @@ async fn start_minecraft(
         &version_details.asset_index.id,
     );
 
+    command.stdout(std::process::Stdio::piped());
+    command.stderr(std::process::Stdio::piped());
+
+    let mut child: Child = command.spawn()?;
     println!("Java command: {:?}", command);
-    let status = command.spawn()?.wait().await?;
-    println!("Minecraft exited with code: {}", status.code().unwrap_or(-1));
+
+    let stdout = child.stdout.take().ok_or("Failed to capture stdout")?;
+    let stderr = child.stderr.take().ok_or("Failed to capture stderr")?;
+    let mut stdout_reader = BufReader::new(stdout).lines();
+    let mut stderr_reader = BufReader::new(stderr).lines();
+
+    let mut sound_engine_started = false;
+    while !sound_engine_started {
+        tokio::select! {
+            line = stdout_reader.next_line() => {
+                if let Some(line) = line? {
+                    println!("{}", line);
+                    if line.contains("Sound engine started") {
+                        sound_engine_started = true;
+                        let elapsed_time = start_time.elapsed();
+                        println!(
+                            "Time to launch Minecraft: {:.2} seconds",
+                            elapsed_time.as_secs_f64()
+                        );
+                    }
+                }
+            }
+            line = stderr_reader.next_line() => {
+                if let Some(line) = line? {
+                    println!("{}", line);
+                    if line.contains("Sound engine started") {
+                        sound_engine_started = true;
+                        let elapsed_time = start_time.elapsed();
+                        println!(
+                            "Time to launch Minecraft: {:.2} seconds",
+                            elapsed_time.as_secs_f64()
+                        );
+                    }
+                }
+            }
+            status = child.wait() => {
+                let status = status?;
+                println!("Minecraft exited with code: {}", status.code().unwrap_or(-1));
+                break;
+            }
+        }
+    }
+
+    if !sound_engine_started {
+        println!("Sound engine started not detected before process exit");
+    }
+
     Ok(())
 }
