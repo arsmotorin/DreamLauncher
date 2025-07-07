@@ -10,8 +10,8 @@ use hyper::body::HttpBody as _;
 use serde::de::DeserializeOwned;
 use tokio::fs as tokio_fs;
 
-use crate::creeper::minecraft_models::{AssetIndex, AssetIndexManifest, Library};
-use crate::creeper::progress_bar::ProgressBar;
+use crate::creeper::vanilla::models::{AssetIndex, AssetIndexManifest, Library};
+use crate::creeper::utils::progress_bar::ProgressBar;
 
 /// Handles downloading of Minecraft assets, libraries, and JSON data using HTTP.
 pub struct Downloader {

@@ -20,7 +20,6 @@ impl JavaConfig {
             "-XX:+TieredCompilation".to_string(),
             "-XX:+UnlockExperimentalVMOptions".to_string(),
             "-XX:+DisableExplicitGC".to_string(),
-            "-XX:+AlwaysPreTouch".to_string(),
             "-XX:+OptimizeStringConcat".to_string(),
             "-Dsun.stdout.encoding=UTF-8".to_string(),
             "-Dsun.stderr.encoding=UTF-8".to_string(),

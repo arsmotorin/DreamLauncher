@@ -5,10 +5,10 @@ use tokio::process::{Child, Command};
 use std::time::Instant;
 use tokio::try_join;
 
-use crate::creeper::java_config::JavaConfig;
-use crate::creeper::minecraft_models::{VersionDetails, VersionManifest};
-use crate::creeper::downloader::Downloader;
-use crate::creeper::filesystem::FileSystem;
+use crate::creeper::java::java_config::JavaConfig;
+use crate::creeper::vanilla::models::{VersionDetails, VersionManifest};
+use crate::creeper::vanilla::downloader::Downloader;
+use crate::creeper::utils::file_manager::FileSystem;
 
 /// CLI Launcher for Minecraft.
 #[tokio::main]
