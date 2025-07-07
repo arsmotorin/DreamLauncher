@@ -1,29 +1,33 @@
-// main.rs
 use std::io::{self, Write};
 use std::path::Path;
 
-use reqwest::Client;
+use reqwest::{Client, ClientBuilder};
 use tokio::process::Command;
 use tokio::try_join;
+use std::time::Duration;
 
 use crate::creeper::java_config::JavaConfig;
 use crate::creeper::minecraft_models::{VersionDetails, VersionManifest};
 use crate::creeper::downloader::Downloader;
 use crate::creeper::filesystem::FileSystem;
 
-/// The main entry point for the launcher.
-/// Handles user input and launches Minecraft as requested.
-///
-/// # Errors
-/// Returns an error if any operation fails.
+// Creates an http client with HTTP/2 preferred settings (dofi4ka's suggestion)
+fn create_http2_preferred_client() -> Client {
+    ClientBuilder::new()
+        .http2_adaptive_window(true)
+        .http2_keep_alive_interval(Duration::from_secs(60))
+        .http2_keep_alive_timeout(Duration::from_secs(90))
+        .pool_max_idle_per_host(64)
+        .timeout(Duration::from_secs(90))
+        .build()
+        .expect("Failed to build HTTP/2-preferred client")
+}
+
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Launcher by cubelius\nCommands: boom, exit");
 
-    let client = Client::builder()
-        .pool_max_idle_per_host(64)
-        .timeout(std::time::Duration::from_secs(90))
-        .build()?;
+    let client = create_http2_preferred_client();
     let minecraft_dir = Path::new(".minecraft");
     FileSystem::ensure_minecraft_directory(&minecraft_dir)?;
 

@@ -1,9 +1,9 @@
 use std::collections::HashSet;
-use std::path::{Path};
+use std::path::Path;
 use std::sync::Arc;
 
 use futures::{stream, StreamExt};
-use reqwest::Client;
+use reqwest::{Client};
 use tokio::fs as tokio_fs;
 
 use crate::creeper::minecraft_models::{AssetIndex, AssetIndexManifest, Library};
