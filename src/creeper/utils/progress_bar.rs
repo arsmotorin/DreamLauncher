@@ -36,9 +36,9 @@ impl ProgressBar {
         }
     }
 
-    // Update the progress bar every 0.5 seconds
+    // Update the progress bar every second
     pub async fn start_periodic_update(&self) {
-        let mut interval = time::interval(time::Duration::from_millis(500));
+        let mut interval = time::interval(time::Duration::from_millis(1000));
         loop {
             interval.tick().await;
             let current = self.completed.load(Ordering::SeqCst);

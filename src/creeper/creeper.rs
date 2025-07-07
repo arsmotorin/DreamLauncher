@@ -1,3 +1,4 @@
+use std::error::Error;
 use std::io::{self, Write};
 use std::path::Path;
 use tokio::io::{AsyncBufReadExt, BufReader};
@@ -10,14 +11,21 @@ use crate::creeper::vanilla::models::{VersionDetails, VersionManifest};
 use crate::creeper::vanilla::downloader::Downloader;
 use crate::creeper::utils::file_manager::FileSystem;
 
-/// CLI Launcher for Minecraft.
+/// CLI launcher for Dream Launcher.
+/// This program allows us to launch different versions of Minecraft
+/// using a command-line interface.
+///
+/// We will use this launcher for Dream Launcher.
 #[tokio::main]
-pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("Launcher by cubelius\nCommands: boom, exit");
+pub async fn main() -> Result<(), Box<dyn Error>> {
+    println!("What do you want to launch?");
+    println!("[1] Vanilla Minecraft");
+    println!("[2] Fabric Minecraft");
+    println!("[3] Forge Minecraft");
+    println!("[4] Nothing, exit");
 
     let downloader = Downloader::new();
     let minecraft_dir = Path::new(".minecraft");
-    FileSystem::ensure_minecraft_directory(&minecraft_dir)?;
 
     let fs = FileSystem::new();
 
@@ -27,13 +35,21 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
         let mut input = String::new();
         io::stdin().read_line(&mut input)?;
         match input.trim() {
-            "exit" => break,
-            "boom" => {
+            "1" => {
                 if let Err(e) = start_minecraft(&downloader, &fs, &minecraft_dir).await {
                     eprintln!("Failed to start Minecraft: {}", e);
                 }
             }
-            cmd => println!("Unknown command: '{}'. Available: boom, exit", cmd),
+            "2" => {
+                println!("Fabric Minecraft is not implemented yet.");
+                break;
+            },
+            "3" => {
+                println!("Forge Minecraft is not implemented yet.");
+                break;
+            },
+            "4" => break,
+            cmd => println!("Unknown command: {}", cmd),
         }
     }
     Ok(())
@@ -52,7 +68,7 @@ async fn start_minecraft(
     downloader: &Downloader,
     fs: &FileSystem,
     minecraft_dir: &Path,
-) -> Result<(), Box<dyn std::error::Error>> {
+) -> Result<(String), Box<dyn std::error::Error>> {
     let start_time = Instant::now();
 
     let version = "1.21.7";
@@ -166,5 +182,5 @@ async fn start_minecraft(
         println!("Sound engine started not detected before process exit");
     }
 
-    Ok(())
+    Ok(("Minecraft started successfully").to_string())
 }

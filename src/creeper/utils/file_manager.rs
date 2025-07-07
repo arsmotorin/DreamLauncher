@@ -1,4 +1,3 @@
-use std::fs;
 use std::path::{Path};
 
 use glob::glob;
@@ -8,15 +7,6 @@ pub struct FileSystem;
 impl FileSystem {
     pub fn new() -> Self {
         Self
-    }
-
-    pub fn ensure_minecraft_directory(
-        minecraft_dir: &Path,
-    ) -> Result<(), Box<dyn std::error::Error>> {
-        for subdir in ["libraries", "versions", "assets/objects", "assets/indexes"] {
-            fs::create_dir_all(minecraft_dir.join(subdir))?;
-        }
-        Ok(())
     }
 
     pub fn build_classpath(
