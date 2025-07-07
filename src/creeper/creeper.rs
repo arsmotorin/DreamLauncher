@@ -12,10 +12,6 @@ use crate::creeper::vanilla::downloader::Downloader;
 use crate::creeper::utils::file_manager::FileSystem;
 
 /// CLI launcher for Dream Launcher.
-/// This program allows us to launch different versions of Minecraft
-/// using a command-line interface.
-///
-/// We will use this launcher for Dream Launcher.
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn Error>> {
     println!("What do you want to launch?");
@@ -25,8 +21,9 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
     println!("[4] Nothing, exit");
 
     let downloader = Downloader::new();
-    let minecraft_dir = Path::new(".minecraft");
 
+    // Set the path to the .minecraft directory
+    let minecraft_dir = Path::new(".minecraft");
     let fs = FileSystem::new();
 
     loop {
@@ -36,8 +33,21 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
         io::stdin().read_line(&mut input)?;
         match input.trim() {
             "1" => {
-                if let Err(e) = start_minecraft(&downloader, &fs, &minecraft_dir).await {
-                    eprintln!("Failed to start Minecraft: {}", e);
+                println!("What version of Minecraft do you want to launch? (e.g., 1.21.7)");
+                let mut version_input = String::new();
+                io::stdin().read_line(&mut version_input)?;
+                let version = version_input.trim();
+                if version.is_empty() {
+                    println!("No version specified, using default 1.21.7");
+                    let version = "1.21.7";
+                    if let Err(e) = start_minecraft(&downloader, &fs, &minecraft_dir, version).await {
+                        eprintln!("Failed to start Minecraft: {}", e);
+                    }
+                } else {
+                    println!("Using version {}", version);
+                    if let Err(e) = start_minecraft(&downloader, &fs, &minecraft_dir, version).await {
+                        eprintln!("Failed to start Minecraft: {}", e);
+                    }
                 }
             }
             "2" => {
@@ -57,21 +67,25 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
 
 /// Starts Minecraft by downloading the necessary files and launching the game.
 ///
-/// # Arguments
-/// * `downloader` - Handles file downloads.
-/// * `fs` - Manages filesystem operations.
-/// * `minecraft_dir` - Path to the .minecraft directory.
+/// ##### Arguments
+/// * `downloader` - handles file downloads
+/// * `fs` - manages filesystem operations
+/// * `minecraft_dir` - path to the .minecraft directory
+/// * `version` - Minecraft version to launch
 ///
-/// # Returns
+/// ##### Returns
 /// Result indicating success or failure.
 async fn start_minecraft(
     downloader: &Downloader,
     fs: &FileSystem,
     minecraft_dir: &Path,
-) -> Result<(String), Box<dyn std::error::Error>> {
+    version: &str,
+) -> Result<String, Box<dyn Error>> {
+
+    // Start the timer to measure launch time
     let start_time = Instant::now();
 
-    let version = "1.21.7";
+    // Set the Minecraft version to launch
     let manifest_url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 
     println!("Fetching version manifest from {}", manifest_url);
@@ -182,5 +196,5 @@ async fn start_minecraft(
         println!("Sound engine started not detected before process exit");
     }
 
-    Ok(("Minecraft started successfully").to_string())
+    Ok("Minecraft started successfully".to_string())
 }

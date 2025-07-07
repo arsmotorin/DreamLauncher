@@ -24,7 +24,7 @@ impl ProgressBar {
         self.completed.fetch_add(1, Ordering::SeqCst);
     }
 
-    fn update_display(&self, current: usize) {
+    async fn update_display(&self, current: usize) {
         let percentage = (current as f64 / self.total as f64 * 100.0) as usize;
         let bar_width = 40;
         let filled = (percentage * bar_width) / 100;
@@ -42,7 +42,7 @@ impl ProgressBar {
         loop {
             interval.tick().await;
             let current = self.completed.load(Ordering::SeqCst);
-            self.update_display(current);
+            self.update_display(current).await;
             if current >= self.total {
                 break;
             }

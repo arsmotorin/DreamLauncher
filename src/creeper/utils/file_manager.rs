@@ -1,14 +1,9 @@
 use std::path::{Path};
-
 use glob::glob;
 
 pub struct FileSystem;
 
 impl FileSystem {
-    pub fn new() -> Self {
-        Self
-    }
-
     pub fn build_classpath(
         &self,
         libraries_dir: &Path,
@@ -21,6 +16,10 @@ impl FileSystem {
         }
         classpath.push_str(client_jar_path.to_str().ok_or("Invalid client jar path")?);
         Ok(classpath)
+    }
+    
+    pub fn new() -> Self {
+        Self
     }
 
     pub fn exists(&self, path: &Path) -> bool {
