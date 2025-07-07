@@ -1,37 +1,23 @@
 use std::io::{self, Write};
 use std::path::Path;
 
-use reqwest::{Client, ClientBuilder};
 use tokio::process::Command;
 use tokio::try_join;
-use std::time::Duration;
 
 use crate::creeper::java_config::JavaConfig;
 use crate::creeper::minecraft_models::{VersionDetails, VersionManifest};
 use crate::creeper::downloader::Downloader;
 use crate::creeper::filesystem::FileSystem;
 
-// Creates an http client with HTTP/2 preferred settings (dofi4ka's suggestion)
-fn create_http2_preferred_client() -> Client {
-    ClientBuilder::new()
-        .http2_adaptive_window(true)
-        .http2_keep_alive_interval(Duration::from_secs(60))
-        .http2_keep_alive_timeout(Duration::from_secs(90))
-        .pool_max_idle_per_host(64)
-        .timeout(Duration::from_secs(90))
-        .build()
-        .expect("Failed to build HTTP/2-preferred client")
-}
-
+/// CLI Launcher for Minecraft.
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Launcher by cubelius\nCommands: boom, exit");
 
-    let client = create_http2_preferred_client();
+    let downloader = Downloader::new();
     let minecraft_dir = Path::new(".minecraft");
     FileSystem::ensure_minecraft_directory(&minecraft_dir)?;
 
-    let downloader = Downloader::new(client.clone());
     let fs = FileSystem::new();
 
     loop {
@@ -52,15 +38,15 @@ pub async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-/// Downloads all required files and launches Minecraft for the specified version.
+/// Starts Minecraft by downloading the necessary files and launching the game.
 ///
 /// # Arguments
-/// * `downloader` - Downloader instance for downloading files.
-/// * `fs` - FileSystem instance for file operations.
-/// * `minecraft_dir` - The root directory of the Minecraft installation.
+/// * `downloader` - Handles file downloads.
+/// * `fs` - Manages filesystem operations.
+/// * `minecraft_dir` - Path to the .minecraft directory.
 ///
-/// # Errors
-/// Returns an error if any step in the process fails.
+/// # Returns
+/// Result indicating success or failure.
 async fn start_minecraft(
     downloader: &Downloader,
     fs: &FileSystem,
@@ -88,7 +74,6 @@ async fn start_minecraft(
     let libraries_dir = minecraft_dir.join("libraries");
     let client_jar_path = versions_dir.join(format!("{}.jar", version));
 
-    // Parallel download of the client jar if it doesn't exist
     let client_jar_fut = if !fs.exists(&client_jar_path) {
         Some(downloader.download_file_if_not_exists(
             &version_details.downloads.client.url,
@@ -105,11 +90,9 @@ async fn start_minecraft(
     let assets_fut = downloader.download_assets(&version_details.asset_index, minecraft_dir);
 
     if let Some(fut) = client_jar_fut {
-        // Download client jar, libraries, and assets in parallel
         try_join!(fut, libs_fut, assets_fut)?;
         println!("Client downloaded");
     } else {
-        // Only libraries and assets are downloaded
         try_join!(libs_fut, assets_fut)?;
     }
 
