@@ -1,0 +1,259 @@
+@font-face {
+    font-family: 'Gilroy';
+    src: url('/public/assets/fonts/Gilroy-Medium.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'Gilroy';
+    src: url('/public/assets/fonts/Gilroy-BOLD.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+* {
+    -webkit-font-smoothing: antialiased;
+    box-sizing: border-box;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+img {
+    -webkit-user-drag: none;
+    -khtml-user-drag: none;
+    -moz-user-drag: none;
+    -o-user-drag: none;
+    user-drag: none;
+    pointer-events: none;
+}
+
+html, body {
+    font-family: "Gilroy-Bold", Helvetica, Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    height: 100vh;
+}
+
+.desktop {
+    background-color: #1a1a1a;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    min-height: 100vh;
+    position: relative;
+}
+
+.desktop .div {
+    background-color: #1a1a1a;
+    width: 1280px;
+    height: 832px;
+    position: relative;
+}
+
+.desktop .rectangle,
+.desktop .home,
+.desktop .mods-and-packs,
+.desktop .settings,
+.desktop .cloud,
+
+.desktop .rectangle,
+.desktop .mods-and-packs,
+.desktop .settings,
+.desktop .cloud {
+    display: inline-flex;
+    height: 32px;
+    padding: 4px 12px;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.desktop .rectangle {
+    left: 240px; /* 32 + 192 + 16 = 240px */
+}
+
+.desktop .home {
+    display: flex;
+    width: 192px;
+    height: 20px;
+    padding: 4px 12px;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.desktop .plus {
+    display: flex;
+    width: 32px;
+    height: 32px;
+    padding: 4px 6px;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background-color: #141414;
+    border-radius: 8px;
+}
+
+.desktop .img {
+    position: relative;
+    width: 24px;
+    height: 24px;
+}
+
+.desktop .text-wrapper,
+.desktop .text-wrapper-2 {
+    position: relative;
+    width: fit-content;
+    font-family: "Gilroy-Bold", Helvetica;
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0;
+    line-height: normal;
+    white-space: nowrap;
+}
+
+.desktop .text-wrapper {
+    color: #ffffff;
+}
+
+.desktop .text-wrapper-2 {
+    color: #6f6f6f;
+}
+
+.desktop .group {
+    position: relative;
+    width: 20px;
+    height: 20px;
+    background-size: cover;
+    background-position: 50% 50%;
+}
+
+.navigation {
+    display: flex;
+    align-items: center;
+    padding: 0px 32px 16px 32px;
+    width: 100%;
+    max-width: 1280px;
+}
+
+.logo-wrapper {
+    width: 192px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    padding: 0 12px;
+    gap: 12px;
+    background-color: #141414;
+    border-radius: 8px;
+    box-sizing: border-box;
+}
+
+.logo {
+    width: 32px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.logo-img {
+    width: 32px;
+    height: 20px;
+    object-fit: contain;
+}
+
+.app-name {
+    font-size: 16px;
+    font-weight: 700;
+    color: #ffffff;
+    white-space: nowrap;
+    line-height: 20px;
+}
+
+.nav-items {
+    display: flex;
+    list-style-type: none;
+    gap: 16px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 4px 12px;
+    background-color: #141414;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.nav-icon {
+    width: 24px;
+    height: 24px;
+}
+
+.nav-text {
+    font-size: 16px;
+    font-weight: 700;
+    color: #6f6f6f;
+    white-space: nowrap;
+}
+
+.nav-item.active .nav-text {
+    color: #ffffff;
+}
+
+.nav-row {
+    position: absolute;
+    top: 20px;
+    left: 32px;
+    display: flex;
+    gap: 12px;
+}
+
+.add-button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+    background-color: #141414;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.plus-icon {
+    width: 24px;
+    height: 24px;
+}
+
+@media (max-width: 768px) {
+    .navigation {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .logo-wrapper {
+        margin-right: 0;
+        margin-bottom: 16px;
+    }
+
+    .nav-items {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .add-button {
+        margin-left: 0;
+        margin-top: 16px;
+    }
+}

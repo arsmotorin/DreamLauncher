@@ -1,10 +1,31 @@
 use dioxus::prelude::*;
 use dioxus_desktop::{Config, LogicalSize, WindowBuilder};
+use dioxus_router::prelude::*;
+
 mod creeper;
 mod application;
 mod play_together;
 mod chats;
 mod cloud;
+
+use application::main::main::Main;
+use application::auth::auth::App;
+
+#[derive(Routable, Clone)]
+#[rustfmt::skip]
+enum Route {
+    #[route("/")]
+    App {},
+    #[route("/main")]
+    Main {},
+}
+
+#[component]
+fn Root() -> Element {
+    rsx! {
+        Router::<Route> {}
+    }
+}
 
 pub fn main() {
     let size = LogicalSize::new(1280.0, 832.0);
@@ -20,7 +41,7 @@ pub fn main() {
 
     LaunchBuilder::new()
         .with_cfg(config)
-        .launch(application::auth::auth::app);
+        .launch(Root);
 }
 
 fn call_creeper() {

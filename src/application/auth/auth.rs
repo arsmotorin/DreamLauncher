@@ -1,14 +1,16 @@
+use std::time::Duration;
 use dioxus::prelude::*;
 use dioxus::events::KeyboardEvent;
 use dioxus::hooks::use_signal;
-use dioxus_router::prelude::navigator;
-use application::auth;
-use crate::application;
+use dioxus_router::prelude::{use_navigator};
+use tokio::time::sleep;
 
-pub fn app() -> Element {
+#[component]
+pub fn App() -> Element {
     let mut input_visible = use_signal(|| false);
     let mut username = use_signal(String::new);
     let mut hide_ui = use_signal(|| false);
+    let nav = use_navigator();
 
     // Validation function for the username
     let is_valid = move || {
@@ -16,20 +18,24 @@ pub fn app() -> Element {
         (3..=16).contains(&name.len()) && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
     };
 
-    const LOGO: Asset = asset!("/public/assets/images/logo.png");
-    const MICROSOFT: Asset = asset!("/public/assets/images/microsoft.png");
+    const LOGO: Asset = asset!("/public/assets/images/other/logo.png");
+    const MICROSOFT: Asset = asset!("/public/assets/images/other/microsoft.png");
 
     // Function to handle keypress events
     let on_keypress = move |e: KeyboardEvent| {
         if e.key() == "Enter".parse().unwrap() && is_valid() {
             hide_ui.set(true);
+            spawn(async move {
+                sleep(Duration::from_millis(700)).await;
+                nav.push("/main");
+            });
         }
     };
 
     rsx! {
         // CSS styles
         style {
-            dangerous_inner_html: include_str!("/Users/cubelius/RustroverProjects/Launcher/DreamLauncher/public/assets/styles/style.css")
+            dangerous_inner_html: include_str!("/Users/cubelius/RustroverProjects/Launcher/DreamLauncher/public/assets/styles/style_auth.css")
         }
         main {
             // Fade-out effect when the UI is hidden after login
@@ -82,9 +88,15 @@ pub fn app() -> Element {
                     }
                     // Error message for invalid username
                     if input_visible() && !is_valid() && username().len() >= 3 {
-                        // TODO
+                        div {
+                            class: "error-message",
+                            "Invalid username. Use 3-16 characters (letters, numbers, or underscores)."
+                        }
                     } else {
-                        // TODO
+                        div {
+                            class: "error-message-placeholder",
+                            style: "height: 1.5em;" // Reserve space to prevent layout shift
+                        }
                     }
                 }
             }
