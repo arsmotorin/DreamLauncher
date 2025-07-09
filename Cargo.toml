@@ -6,6 +6,7 @@ edition = "2024"
 [dependencies]
 # Frontend dependencies
 dioxus = { version = "0.6.3", features = ["desktop"] }
+dioxus-router = "0.6.3"
 dioxus-desktop = "0.6.3"
 # Backend dependencies
 serde = { version = "1.0.219", features = ["derive"] }

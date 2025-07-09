@@ -1,6 +1,9 @@
 use dioxus::prelude::*;
 use dioxus::events::KeyboardEvent;
 use dioxus::hooks::use_signal;
+use dioxus_router::prelude::navigator;
+use application::auth;
+use crate::application;
 
 pub fn app() -> Element {
     let mut input_visible = use_signal(|| false);
@@ -24,11 +27,11 @@ pub fn app() -> Element {
     };
 
     rsx! {
+        // CSS styles
         style {
             dangerous_inner_html: include_str!("/Users/cubelius/RustroverProjects/Launcher/DreamLauncher/public/assets/styles/style.css")
         }
         main {
-
             // Fade-out effect when the UI is hidden after login
             class: if hide_ui() { "container fade-out" } else { "desktop" },
             div {
@@ -79,9 +82,9 @@ pub fn app() -> Element {
                     }
                     // Error message for invalid username
                     if input_visible() && !is_valid() && username().len() >= 3 {
-                        p {
-                            // TODO
-                        }
+                        // TODO
+                    } else {
+                        // TODO
                     }
                 }
             }

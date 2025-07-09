@@ -11,7 +11,7 @@ use crate::creeper::vanilla::models::{VersionDetails, VersionManifest};
 use crate::creeper::vanilla::downloader::Downloader;
 use crate::creeper::utils::file_manager::FileSystem;
 
-/// CLI launcher for Dream Launcher.
+/// CLI application for Dream Launcher.
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn Error>> {
     println!("What do you want to launch?");

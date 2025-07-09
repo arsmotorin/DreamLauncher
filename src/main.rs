@@ -1,7 +1,10 @@
 use dioxus::prelude::*;
 use dioxus_desktop::{Config, LogicalSize, WindowBuilder};
-mod launcher;
 mod creeper;
+mod application;
+mod play_together;
+mod chats;
+mod cloud;
 
 pub fn main() {
     let size = LogicalSize::new(1280.0, 832.0);
@@ -17,7 +20,7 @@ pub fn main() {
 
     LaunchBuilder::new()
         .with_cfg(config)
-        .launch(launcher::launcher::app);
+        .launch(application::auth::auth::app);
 }
 
 fn call_creeper() {
