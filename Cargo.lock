@@ -3,6 +3,21 @@
 version = 4
 
 [[package]]
+name = "DreamLauncher"
+version = "0.1.0"
+dependencies = [
+ "dioxus",
+ "dioxus-desktop",
+ "futures",
+ "glob",
+ "hyper 0.14.32",
+ "hyper-rustls",
+ "serde",
+ "serde_json",
+ "tokio",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2418,21 +2433,6 @@ dependencies = [
  "indexmap 1.9.3",
  "matches",
  "selectors",
-]
-
-[[package]]
-name = "launcher"
-version = "0.1.0"
-dependencies = [
- "dioxus",
- "dioxus-desktop",
- "futures",
- "glob",
- "hyper 0.14.32",
- "hyper-rustls",
- "serde",
- "serde_json",
- "tokio",
 ]
 
 [[package]]
