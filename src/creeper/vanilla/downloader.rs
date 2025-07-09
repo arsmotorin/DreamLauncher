@@ -167,7 +167,7 @@ impl Downloader {
         ));
         tokio::spawn({
             let progress_bar = progress_bar.clone();
-            async move { progress_bar.start_periodic_update().await }
+            async move { progress_bar.as_ref().start_periodic_update().await }
         });
 
         let results: Vec<_> = futures::stream::iter(unique_assets)
@@ -190,7 +190,7 @@ impl Downloader {
                             &url,
                             &file_path,
                             Some(size),
-                            Some(&progress_bar),
+                            Some(progress_bar.as_ref()),
                         )
                         .await
                         .map_err(|e| format!("Failed to download asset {}: {}", url, e))
@@ -241,7 +241,7 @@ impl Downloader {
         ));
         tokio::spawn({
             let progress_bar = progress_bar.clone();
-            async move { progress_bar.start_periodic_update().await }
+            async move { progress_bar.as_ref().start_periodic_update().await }
         });
 
         let results: Vec<_> = futures::stream::iter(valid_libs)
@@ -258,7 +258,7 @@ impl Downloader {
                             &url,
                             &path,
                             None,
-                            Some(&progress_bar),
+                            Some(progress_bar.as_ref()),
                         )
                         .await
                         .map_err(|e| format!("Failed to download library {}: {}", url, e))

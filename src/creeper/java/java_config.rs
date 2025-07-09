@@ -21,6 +21,7 @@ impl JavaConfig {
             "-XX:+UnlockExperimentalVMOptions".to_string(),
             "-XX:+DisableExplicitGC".to_string(),
             "-XX:+OptimizeStringConcat".to_string(),
+            "--enable-native-access=ALL-UNNAMED".to_string(),
             "-Dsun.stdout.encoding=UTF-8".to_string(),
             "-Dsun.stderr.encoding=UTF-8".to_string(),
         ];
