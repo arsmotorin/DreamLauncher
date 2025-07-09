@@ -1,6 +1,7 @@
 use dioxus::prelude::*;
 use dioxus_desktop::{Config, LogicalSize, WindowBuilder};
 mod launcher;
+mod creeper;
 
 pub fn main() {
     let size = LogicalSize::new(1280.0, 832.0);
