@@ -20,8 +20,6 @@ impl JavaManager {
     pub fn new() -> Self {
         let mut version_map = HashMap::new();
 
-        // TODO: add more Java versions (6, 11, etc.?)
-
         // Java 8 URLs (OpenJDK)
         let java8 = if cfg!(target_os = "windows") {
             JavaVersion {
@@ -341,8 +339,8 @@ impl JavaManager {
         self.ensure_java(minecraft_version).await
     }
 
-    /// Check system Java compatibility with Minecraft version
-    fn is_system_java_companible(&self, version_output: &str, required_major: u8) -> bool {
+    /// Check system Java compatibility with a Minecraft version
+    fn is_system_java_compatible(&self, version_output: &str, required_major: u8) -> bool {
         if version_output.contains("1.8.") && required_major == 8 {
             return true;
         }

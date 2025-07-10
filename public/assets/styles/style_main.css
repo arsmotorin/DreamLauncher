@@ -133,9 +133,10 @@ html, body {
 .navigation {
     display: flex;
     align-items: center;
-    padding: 0px 32px 16px 32px;
+    padding: 0px 0px 16px 32px;
     width: 100%;
     max-width: 1280px;
+    position: relative;
 }
 
 .logo-wrapper {
@@ -176,7 +177,7 @@ html, body {
 .nav-items {
     display: flex;
     list-style-type: none;
-    gap: 16px;
+    gap: 12px;
 }
 
 .nav-item {
@@ -208,7 +209,7 @@ html, body {
 .nav-row {
     position: absolute;
     top: 20px;
-    left: 32px;
+    left: 224px;
     display: flex;
     gap: 12px;
 }
@@ -224,6 +225,7 @@ html, body {
     border: none;
     border-radius: 8px;
     cursor: pointer;
+    margin-left: 12px;
 }
 
 .plus-icon {
@@ -251,4 +253,25 @@ html, body {
         margin-left: 0;
         margin-top: 16px;
     }
+}
+
+.nav-item:hover .nav-text,
+.nav-item:hover .nav-icon {
+    color: #a0a0a0;
+    filter: brightness(1.2);
+}
+
+.nav-item.active .nav-text,
+.nav-item.active .nav-icon {
+    color: #ffffff;
+    filter: brightness(2.0);
+}
+
+.nav-icon {
+    filter: brightness(1.0);
+    transition: filter 0.2s ease, color 0.2s ease;
+}
+
+.nav-text {
+    transition: color 0.2s ease;
 }

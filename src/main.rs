@@ -6,18 +6,30 @@ mod creeper;
 mod application;
 mod play_together;
 mod chats;
-mod cloud;
 
+// Import all pages from the application module
 use application::main::main::Main;
 use application::auth::auth::App;
+use application::main::mods_and_packs::ModsAndPacks;
+use application::main::settings::Settings;
+use application::main::cloud::Cloud;
+use application::main::new::New;
 
-/*#[derive(Routable, Clone)]
+#[derive(Routable, Clone)]
 #[rustfmt::skip]
 enum Route {
     #[route("/")]
     App {},
     #[route("/main")]
     Main {},
+    #[route("/mods_and_packs")]
+    ModsAndPacks {},
+    #[route("/settings")]
+    Settings {},
+    #[route("/cloud")]
+    Cloud {},
+    #[route("/new")]
+    New {},
 }
 
 #[component]
@@ -42,6 +54,6 @@ pub fn main() {
     LaunchBuilder::new()
         .with_cfg(config)
         .launch(Root);
-}*/
+}
 
-fn main() { let _ = creeper::creeper::main(); }
+// fn main() { let _ = creeper::creeper::main(); }
