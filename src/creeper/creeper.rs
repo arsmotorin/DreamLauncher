@@ -5,13 +5,12 @@ use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::{Child, Command};
 use std::time::Instant;
 use tokio::try_join;
-
 use crate::creeper::java::java_config::JavaConfig;
-use crate::creeper::vanilla::models::{VersionDetails, VersionManifest};
-use crate::creeper::vanilla::downloader::Downloader;
 use crate::creeper::utils::file_manager::FileSystem;
+use crate::creeper::vanilla::downloader::Downloader;
+use crate::creeper::vanilla::models::{VersionDetails, VersionManifest};
+use crate::creeper::java::java_downloader::JavaManager;
 
-/// CLI application for Dream Launcher.
 #[tokio::main]
 pub async fn main() -> Result<(), Box<dyn Error>> {
     println!("What do you want to launch?");
@@ -21,6 +20,7 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
     println!("[4] Nothing, exit");
 
     let downloader = Downloader::new();
+    let java_manager = JavaManager::new();
 
     // Set the path to the .minecraft directory
     let minecraft_dir = Path::new(".minecraft");
@@ -40,12 +40,12 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
                 if version.is_empty() {
                     println!("No version specified, using default 1.21.7");
                     let version = "1.21.7";
-                    if let Err(e) = start_minecraft(&downloader, &fs, &minecraft_dir, version).await {
+                    if let Err(e) = start_minecraft(&downloader, &java_manager, &fs, &minecraft_dir, version).await {
                         eprintln!("Failed to start Minecraft: {}", e);
                     }
                 } else {
                     println!("Using version {}", version);
-                    if let Err(e) = start_minecraft(&downloader, &fs, &minecraft_dir, version).await {
+                    if let Err(e) = start_minecraft(&downloader, &java_manager, &fs, &minecraft_dir, version).await {
                         eprintln!("Failed to start Minecraft: {}", e);
                     }
                 }
@@ -65,18 +65,9 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
-/// Starts Minecraft by downloading the necessary files and launching the game.
-///
-/// ##### Arguments
-/// * `downloader` - handles file downloads
-/// * `fs` - manages filesystem operations
-/// * `minecraft_dir` - path to the .minecraft directory
-/// * `version` - Minecraft version to launch
-///
-/// ##### Returns
-/// Result indicating success or failure.
 async fn start_minecraft(
     downloader: &Downloader,
+    java_manager: &JavaManager,
     fs: &FileSystem,
     minecraft_dir: &Path,
     version: &str,
@@ -85,7 +76,19 @@ async fn start_minecraft(
     // Start the timer to measure launch time
     let start_time = Instant::now();
 
-    // Set the Minecraft version to launch
+    // Check for Java
+    println!("Checking Java compatibility for Minecraft {}...", version);
+    let java_executable = match java_manager.get_java_executable(Some(version)).await {
+        Ok(path) => {
+            println!("Java ready: {}", path.display());
+            path
+        }
+        Err(e) => {
+            eprintln!("Failed to get Java: {}", e);
+            return Err(e);
+        }
+    };
+
     let manifest_url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
 
     println!("Fetching version manifest from {}", manifest_url);
@@ -132,12 +135,18 @@ async fn start_minecraft(
     println!("Building classpath...");
     let classpath = fs.build_classpath(&libraries_dir, &client_jar_path)?;
 
-    let java_version = Command::new("java").arg("-version").output().await?;
-    println!("Java version: {:?}", String::from_utf8_lossy(&java_version.stderr));
+    // Use Java
+    let java_version = Command::new(&java_executable).arg("-version").output().await?;
+    println!("Using Java: {:?}", String::from_utf8_lossy(&java_version.stderr));
 
     println!("Starting Minecraft...");
-    let java_config = JavaConfig::new();
-    let mut command = java_config.build_command(
+
+    // Version of Minecraft
+    let java_config = JavaConfig::new(version);
+
+    // Custom Java
+    let mut command = java_config.build_command_with_executable(
+        &java_executable,
         &classpath,
         &version_details.main_class,
         minecraft_dir,

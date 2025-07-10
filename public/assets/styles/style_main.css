@@ -61,11 +61,6 @@ html, body {
 .desktop .home,
 .desktop .mods-and-packs,
 .desktop .settings,
-.desktop .cloud,
-
-.desktop .rectangle,
-.desktop .mods-and-packs,
-.desktop .settings,
 .desktop .cloud {
     display: inline-flex;
     height: 32px;

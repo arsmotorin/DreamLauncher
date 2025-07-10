@@ -15,17 +15,10 @@
 * {
     -webkit-font-smoothing: antialiased;
     box-sizing: border-box;
-    -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
 }
 
 img {
-    -webkit-user-drag: none;
-    -khtml-user-drag: none;
-    -moz-user-drag: none;
-    -o-user-drag: none;
     user-drag: none;
     pointer-events: none;
 }
@@ -36,21 +29,20 @@ html, body {
     overflow: hidden;
 }
 
-button:focus-visible {
-    outline: -webkit-focus-ring-color auto 5px !important;
+body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #141414;
 }
 
 a {
     text-decoration: none;
 }
 
-body {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    margin: 0;
-    background-color: #141414;
+button:focus-visible {
+    outline: -webkit-focus-ring-color auto 5px !important;
 }
 
 .desktop {
@@ -83,7 +75,7 @@ body {
 .welcome-text {
     font-family: 'Gilroy', sans-serif;
     font-weight: 700;
-    color: #ffffff;
+    color: #fff;
     font-size: 36px;
     text-align: center;
     margin-bottom: 2rem;
@@ -113,8 +105,8 @@ body {
 }
 
 .microsoft-login {
-    background-color: #ffffff;
-    color: #000000;
+    background-color: #fff;
+    color: #000;
 }
 
 .microsoft-login:hover {
@@ -136,6 +128,7 @@ body {
     margin-right: 1rem;
 }
 
+.fade-out,
 .container.fade-out {
     opacity: 0;
     transform: translateY(-20px);
@@ -154,7 +147,7 @@ body {
     border: none;
     padding: 20px 40px;
     border-radius: 8px;
-    color: white;
+    color: #fff;
     font-size: 1.2rem;
     cursor: pointer;
     position: relative;
@@ -167,28 +160,7 @@ body {
     justify-content: center;
 }
 
-.username-input {
-    font-size: 1.2rem;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    width: 200px;
-
-    padding: 8px 12px;
-}
-
-.fade-out {
-    opacity: 0;
-    transform: translateY(-30px);
-    transition: all 0.5s ease;
-}
-
-.login-button.offline-login .offline-content {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-}
-
+.username-input,
 .offline-input {
     font-size: 1.1rem;
     padding: 8px 12px;
@@ -196,6 +168,11 @@ body {
     border: 1px solid #ccc;
     width: 180px;
     text-align: left;
+}
+
+.username-input {
+    font-size: 1.2rem;
+    width: 200px;
 }
 
 .offline-label {
@@ -213,30 +190,25 @@ body {
     font-weight: 500;
     font-size: 18px;
     text-align: center;
-    color: #787878 !important; /* Default color */
-    /*transition: text-align 0.2s ease, padding 0.2s ease-in-out, color 0.2s ease;*/
+    color: #787878 !important;
 }
 
-/* Focus */
 .inline-input:focus,
 .inline-input:not(:placeholder-shown) {
     text-align: left;
     padding-left: 16px;
-}
-
-/* ONLY FOR FOCUS COLOR */
-.inline-input:focus {
     color: #787878;
 }
 
-/* ONLY FOR UNFOCUS COLOR */
-.inline-input:not(:focus):not(:placeholder-shown) {
-    color: #787878;
-}
-
-/* ONLY FOR UNFOCUS COLOR (if input is emptz) */
 .inline-input:not(:focus):placeholder-shown {
     color: #787878;
     text-align: center;
     padding-left: 0;
+}
+
+.login-button.offline-login .offline-content {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
 }

@@ -11,7 +11,7 @@ mod cloud;
 use application::main::main::Main;
 use application::auth::auth::App;
 
-#[derive(Routable, Clone)]
+/*#[derive(Routable, Clone)]
 #[rustfmt::skip]
 enum Route {
     #[route("/")]
@@ -42,8 +42,6 @@ pub fn main() {
     LaunchBuilder::new()
         .with_cfg(config)
         .launch(Root);
-}
+}*/
 
-fn call_creeper() {
-    // let _ = creeper::creeper::main();
-}
+fn main() { let _ = creeper::creeper::main(); }
