@@ -3,7 +3,6 @@ use dioxus::prelude::*;
 use dioxus::events::KeyboardEvent;
 use dioxus::hooks::use_signal;
 use dioxus_router::prelude::{use_navigator};
-use tokio::time::sleep;
 
 #[component]
 pub fn App() -> Element {
@@ -18,6 +17,7 @@ pub fn App() -> Element {
         (3..=16).contains(&name.len()) && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
     };
 
+    // const CSS: Asset = asset!("/public/assets/styles/style_auth.css");
     const LOGO: Asset = asset!("/public/assets/images/other/logo.png");
     const MICROSOFT: Asset = asset!("/public/assets/images/other/microsoft.png");
 
@@ -26,14 +26,14 @@ pub fn App() -> Element {
         if e.key() == "Enter".parse().unwrap() && is_valid() {
             hide_ui.set(true);
             spawn(async move {
-                sleep(Duration::from_millis(700)).await;
+                tokio::time::sleep(Duration::from_millis(700)).await;
                 nav.push("/main");
             });
         }
     };
 
     rsx! {
-        // CSS styles
+        // TODO: use proper CSS asset management
         style {
             dangerous_inner_html: include_str!("/Users/cubelius/RustroverProjects/Launcher/DreamLauncher/public/assets/styles/style_auth.css")
         }

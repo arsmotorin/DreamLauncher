@@ -1,13 +1,30 @@
+use std::time::Duration;
 use dioxus::prelude::*;
-
-// use crate::components::ModsAndPacks;
-// use crate::components::Settings;
-// use crate::components::Cloud;
-// use crate::components::Home;
+use dioxus_router::components::Outlet;
+use dioxus_router::prelude::{navigator, use_route};
+use tokio::time::sleep;
+use crate::Route;
 
 #[component]
 pub fn Main() -> Element {
-    let mut active_tab = use_signal(|| "Main");
+    let mut show_ui = use_signal(|| false);
+    let nav = navigator();
+    let route = use_route::<Route>();
+    let active_tab = match route {
+        Route::Home { .. } => "Main",
+        Route::ModsAndPacks { .. } => "ModsAndPacks",
+        Route::Settings { .. } => "Settings",
+        Route::Cloud { .. } => "Cloud",
+        Route::New { .. } => "New",
+    };
+
+    use_effect(move || {
+        spawn(async move {
+            sleep(Duration::from_millis(100)).await;
+            show_ui.set(true);
+        });
+    });
+
     const LOGO: Asset = asset!("/public/assets/images/other/logo.png");
     const HOME: Asset = asset!("/public/assets/images/buttons/home.png");
     const MODS_AND_PACKS: Asset = asset!("/public/assets/images/buttons/mods_and_packs.png");
@@ -20,7 +37,8 @@ pub fn Main() -> Element {
             dangerous_inner_html: include_str!("/Users/cubelius/RustroverProjects/Launcher/DreamLauncher/public/assets/styles/style_main.css")
         }
 
-        div { class: "desktop",
+        div {
+            class: if show_ui() { "desktop fade-in" } else { "desktop fade-out" },
             nav { class: "navigation",
                 div { class: "logo-wrapper",
                     div { class: "logo",
@@ -31,82 +49,49 @@ pub fn Main() -> Element {
 
                 ul { class: "nav-items",
                     li {
-                        // (*active_tab)()
-                        // active_tab: &active_tab ...
-                        class: if (*active_tab)() == "Main" { "nav-item active" } else { "nav-item" },
-                        onclick: move |_| active_tab.set("Main"),
+                        class: if active_tab == "Main" { "nav-item active" } else { "nav-item" },
+                        onclick: move |_| {
+                            nav.push("/");
+                        },
                         img { class: "nav-icon", src: "{HOME}", alt: "Home" }
                         span { class: "nav-text", "Home" }
                     }
                     li {
-                        class: if (*active_tab)() == "ModsAndPacks" { "nav-item active" } else { "nav-item" },
-                        onclick: move |_| active_tab.set("ModsAndPacks"),
+                        class: if active_tab == "ModsAndPacks" { "nav-item active" } else { "nav-item" },
+                        onclick: move |_| {
+                            nav.push("/mods_and_packs");
+                        },
                         img { class: "nav-icon", src: "{MODS_AND_PACKS}", alt: "Mods & Packs" }
                         span { class: "nav-text", "Mods & Packs" }
                     }
                     li {
-                        class: if (*active_tab)() == "Settings" { "nav-item active" } else { "nav-item" },
-                        onclick: move |_| active_tab.set("Settings"),
+                        class: if active_tab == "Settings" { "nav-item active" } else { "nav-item" },
+                        onclick: move |_| {
+                            nav.push("/settings");
+                        },
                         img { class: "nav-icon", src: "{SETTINGS}", alt: "Settings" }
                         span { class: "nav-text", "Settings" }
                     }
                     li {
-                        class: if (*active_tab)() == "Cloud" { "nav-item active" } else { "nav-item" },
-                        onclick: move |_| active_tab.set("Cloud"),
+                        class: if active_tab == "Cloud" { "nav-item active" } else { "nav-item" },
+                        onclick: move |_| {
+                            nav.push("/cloud");
+                        },
                         img { class: "nav-icon", src: "{CLOUD}", alt: "Cloud" }
                         span { class: "nav-text", "Cloud" }
                     }
                     li {
-                        class: if (*active_tab)() == "New" { "nav-item active" } else { "nav-item" },
-                        onclick: move |_| active_tab.set("New"),
+                        class: if active_tab == "New" { "nav-item active" } else { "nav-item" },
+                        onclick: move |_| {
+                            nav.push("/new");
+                        },
                         img { class: "nav-icon", src: "{PLUS}", alt: "New tab" }
                     }
                 }
             }
 
-            // Main content area
             main { class: "content",
-                match (*active_tab)() {
-                    "Main" => rsx! {
-                        div { class: "main-content",
-                            h1 { "Welcome to Dream Launcher" }
-                            p { "This is the main page." }
-                        }
-                    },
-                    "ModsAndPacks" => rsx! {
-                        // ModsAndPacks {}
-                        div { class: "main-content",
-                            h1 { "Mods and Packs" }
-                            p { "This is the Mods and Packs section." }
-                        }
-                    },
-                    "Settings" => rsx! {
-                        // Settings {}
-                        div { class: "main-content",
-                            h1 { "Settings" }
-                            p { "This is the Settings section." }
-                        }
-                    },
-                    "Cloud" => rsx! {
-                        // Cloud {}
-                        div { class: "main-content",
-                            h1 { "Cloud" }
-                            p { "This is the Cloud section." }
-                        }
-                    },
-                    "New" => rsx! {
-                        div { class: "main-content",
-                            h1 { "New Tab" }
-                            p { "This is a new tab." }
-                        }
-                    },
-                    _ => rsx! {
-                        div { class: "main-content",
-                            h1 { "404" }
-                            p { "Page not found." }
-                        }
-                    }
-                }
+                Outlet::<Route> {}
             }
         }
     }

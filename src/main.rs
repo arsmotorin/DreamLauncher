@@ -8,20 +8,20 @@ mod play_together;
 mod chats;
 
 // Import all pages from the application module
-use application::main::main::Main;
-use application::auth::auth::App;
-use application::main::mods_and_packs::ModsAndPacks;
-use application::main::settings::Settings;
-use application::main::cloud::Cloud;
-use application::main::new::New;
+use crate::application::main::main::Main;
+use crate::application::main::home::Home;
+use crate::application::main::mods_and_packs::ModsAndPacks;
+use crate::application::main::settings::Settings;
+use crate::application::main::cloud::Cloud;
+use crate::application::main::new::New;
 
-#[derive(Routable, Clone)]
-#[rustfmt::skip]
-enum Route {
+#[derive(Clone, Routable, Debug, PartialEq)]
+pub enum Route {
+    #[layout(Main)]
     #[route("/")]
-    App {},
-    #[route("/main")]
-    Main {},
+    #[redirect("/", || Route::Home {})]
+    #[route("/home")]
+    Home {},
     #[route("/mods_and_packs")]
     ModsAndPacks {},
     #[route("/settings")]
