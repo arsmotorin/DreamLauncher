@@ -1,10 +1,10 @@
-use std::time::Duration;
+use crate::Route;
+use crate::application::auth::auth_context::AuthState;
 use dioxus::prelude::*;
 use dioxus_router::components::Outlet;
 use dioxus_router::prelude::{navigator, use_route};
+use std::time::Duration;
 use tokio::time::sleep;
-use crate::application::auth::auth_context::AuthState;
-use crate::Route;
 
 #[component]
 pub fn Main() -> Element {
@@ -19,7 +19,7 @@ pub fn Main() -> Element {
 
     let route = use_route::<Route>();
     let active_tab = match route {
-        Route::Auth {  } => "Auth",
+        Route::Auth {} => "Auth",
         Route::Home { .. } => "Main",
         Route::ModsAndPacks { .. } => "ModsAndPacks",
         Route::Settings { .. } => "Settings",
@@ -43,7 +43,7 @@ pub fn Main() -> Element {
 
     rsx! {
         style {
-            dangerous_inner_html: include_str!("/Users/cubelius/RustroverProjects/Launcher/DreamLauncher/public/assets/styles/style_main.css")
+            dangerous_inner_html: include_str!("../../../public/assets/styles/style_main.css")
         }
 
         div {

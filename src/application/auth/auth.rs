@@ -1,9 +1,9 @@
-use std::time::Duration;
-use dioxus::prelude::*;
+use crate::application::auth::auth_context::AuthState;
 use dioxus::events::KeyboardEvent;
 use dioxus::hooks::use_signal;
-use dioxus_router::prelude::{use_navigator};
-use crate::application::auth::auth_context::AuthState;
+use dioxus::prelude::*;
+use dioxus_router::prelude::use_navigator;
+use std::time::Duration;
 
 #[component]
 pub fn Auth() -> Element {
@@ -16,10 +16,10 @@ pub fn Auth() -> Element {
     // Validation function for the username
     let is_valid = move || {
         let name = username.read();
-        (3..=16).contains(&name.len()) && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
+        (3..=16).contains(&name.len())
+            && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_')
     };
 
-    // const CSS: Asset = asset!("/public/assets/styles/style_auth.css");
     const LOGO: Asset = asset!("/public/assets/images/other/logo.png");
     const MICROSOFT: Asset = asset!("/public/assets/images/other/microsoft.png");
 
@@ -36,9 +36,8 @@ pub fn Auth() -> Element {
     };
 
     rsx! {
-        // TODO: use proper CSS asset management
         style {
-            dangerous_inner_html: include_str!("/Users/cubelius/RustroverProjects/Launcher/DreamLauncher/public/assets/styles/style_auth.css")
+            dangerous_inner_html: include_str!("../../../public/assets/styles/style_auth.css")
         }
         main {
             // Fade-out effect when the UI is hidden after login
