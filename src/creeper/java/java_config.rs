@@ -38,7 +38,19 @@ impl JavaConfig {
             }
         }
 
-        let game_args = Self::get_version_specific_args(version);
+        let mut game_args = Self::get_version_specific_args(version);
+
+        #[cfg(target_os = "macos")]
+        {
+            if Self::needs_legacy_macos_args(version) {
+                // Add window size arguments to force windowed mode and visible window
+                game_args.push(("--width".to_string(), "854".to_string()));
+                game_args.push(("--height".to_string(), "480".to_string()));
+                
+                // Enable software OpenGL for older versions
+                jvm_args.push("-Dorg.lwjgl.opengl.Display.allowSoftwareOpenGL=true".to_string());
+            }
+        }
 
         Self {
             jvm_args,
