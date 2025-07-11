@@ -107,12 +107,16 @@ html, body {
 .desktop .text-wrapper-2 {
     position: relative;
     width: fit-content;
-    font-family: "Gilroy-Bold", Helvetica;
     font-weight: 700;
     font-size: 16px;
     letter-spacing: 0;
     line-height: normal;
     white-space: nowrap;
+}
+
+.desktop .text-wrapper,
+.desktop .text-wrapper-2 {
+    font-family: "Gilroy-Bold", Helvetica, sans-serif;
 }
 
 .desktop .text-wrapper {
@@ -134,7 +138,7 @@ html, body {
 .navigation {
     display: flex;
     align-items: center;
-    padding: 0px 0px 16px 32px;
+    padding: 0 0 16px 32px;
     width: 100%;
     max-width: 1280px;
     position: relative;

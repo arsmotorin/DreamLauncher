@@ -68,31 +68,4 @@ impl JavaConfig {
 
         command
     }
-
-    /// Builds the command using the default "java" executable.
-    pub fn build_command(
-        &self,
-        classpath: &str,
-        main_class: &str,
-        minecraft_dir: &Path,
-        asset_index_id: &str,
-    ) -> Command {
-        let mut command = Command::new("java");
-        command
-            .args(&self.jvm_args)
-            .args(&self.platform_args)
-            .arg("-cp")
-            .arg(classpath)
-            .arg(main_class)
-            .args(self.game_args.iter().flat_map(|(k, v)| vec![k.clone(), v.clone()]))
-            .arg("--gameDir")
-            .arg(minecraft_dir)
-            .arg("--assetsDir")
-            .arg(minecraft_dir.join("assets"))
-            .arg("--assetIndex")
-            .arg(asset_index_id)
-            .stdout(Stdio::inherit())
-            .stderr(Stdio::inherit());
-        command
-    }
 }

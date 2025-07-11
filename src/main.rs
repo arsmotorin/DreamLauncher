@@ -41,12 +41,12 @@ fn ModeSelector() -> Element {
                     button {
                         style: "padding: 12px 32px; font-size: 1.1rem;",
                         onclick: move |_| mode.set(Some(true)),
-                        "UI indev"
+                        "UI in dev"
                     }
                     button {
                         style: "padding: 12px 32px; font-size: 1.1rem;",
                         onclick: move |_| mode.set(Some(false)),
-                        "CLI indev"
+                        "CLI in dev"
                     }
                 }
             }

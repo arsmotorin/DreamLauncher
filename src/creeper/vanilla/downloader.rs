@@ -89,7 +89,6 @@ impl Downloader {
         }
         let uri: Uri = url.parse()?;
         let req = Request::get(uri.clone())
-            // Set a user agent
             .header("User-Agent", "Mozilla/5.0 (compatible; hyper/0.14)")
             .body(Body::empty())?;
         let mut resp = self.client.request(req).await?;
