@@ -3,14 +3,23 @@ use dioxus::prelude::*;
 use dioxus_router::components::Outlet;
 use dioxus_router::prelude::{navigator, use_route};
 use tokio::time::sleep;
+use crate::application::auth::auth_context::AuthState;
 use crate::Route;
 
 #[component]
 pub fn Main() -> Element {
     let mut show_ui = use_signal(|| false);
     let nav = navigator();
+    let auth = use_context::<AuthState>();
+
+    if !(auth.is_authenticated)() {
+        nav.replace("/auth");
+        return rsx! { div {} };
+    }
+
     let route = use_route::<Route>();
     let active_tab = match route {
+        Route::Auth {  } => "Auth",
         Route::Home { .. } => "Main",
         Route::ModsAndPacks { .. } => "ModsAndPacks",
         Route::Settings { .. } => "Settings",

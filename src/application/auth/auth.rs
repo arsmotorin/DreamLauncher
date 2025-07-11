@@ -3,13 +3,15 @@ use dioxus::prelude::*;
 use dioxus::events::KeyboardEvent;
 use dioxus::hooks::use_signal;
 use dioxus_router::prelude::{use_navigator};
+use crate::application::auth::auth_context::AuthState;
 
 #[component]
-pub fn App() -> Element {
+pub fn Auth() -> Element {
+    let nav = use_navigator();
+    let mut auth = use_context::<AuthState>();
     let mut input_visible = use_signal(|| false);
     let mut username = use_signal(String::new);
     let mut hide_ui = use_signal(|| false);
-    let nav = use_navigator();
 
     // Validation function for the username
     let is_valid = move || {
@@ -27,7 +29,8 @@ pub fn App() -> Element {
             hide_ui.set(true);
             spawn(async move {
                 tokio::time::sleep(Duration::from_millis(700)).await;
-                nav.push("/main");
+                auth.is_authenticated.set(true);
+                nav.push("/home");
             });
         }
     };

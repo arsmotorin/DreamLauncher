@@ -1,13 +1,13 @@
 use dioxus::prelude::*;
 use dioxus_desktop::{Config, LogicalSize, WindowBuilder};
 use dioxus_router::prelude::*;
-
 mod creeper;
 mod application;
 mod play_together;
 mod chats;
 
-// Import all pages from the application module
+use crate::application::auth::auth::Auth;
+use crate::application::auth::auth_context::AuthState;
 use crate::application::main::main::Main;
 use crate::application::main::home::Home;
 use crate::application::main::mods_and_packs::ModsAndPacks;
@@ -17,8 +17,9 @@ use crate::application::main::new::New;
 
 #[derive(Clone, Routable, Debug, PartialEq)]
 pub enum Route {
+    #[route("/auth")]
+    Auth {},
     #[layout(Main)]
-    #[route("/")]
     #[redirect("/", || Route::Home {})]
     #[route("/home")]
     Home {},
@@ -34,6 +35,10 @@ pub enum Route {
 
 #[component]
 fn Root() -> Element {
+    let is_authenticated = use_signal(|| false);
+
+    provide_context(AuthState { is_authenticated: is_authenticated.clone() });
+
     rsx! {
         Router::<Route> {}
     }
@@ -55,5 +60,3 @@ pub fn main() {
         .with_cfg(config)
         .launch(Root);
 }
-
-// fn main() { let _ = creeper::creeper::main(); }
