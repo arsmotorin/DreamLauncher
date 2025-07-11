@@ -1,50 +1,16 @@
-use dioxus::prelude::*;
-use dioxus_desktop::{Config, LogicalSize, WindowBuilder};
-use dioxus_router::prelude::*;
 mod creeper;
 mod application;
 mod play_together;
 mod chats;
+mod route;
+use crate::route::Route;
 
-use crate::application::auth::auth::Auth;
-use crate::application::auth::auth_context::AuthState;
-use crate::application::main::main::Main;
-use crate::application::main::home::Home;
-use crate::application::main::mods_and_packs::ModsAndPacks;
-use crate::application::main::settings::Settings;
-use crate::application::main::cloud::Cloud;
-use crate::application::main::new::New;
+use dioxus::prelude::*;
+use dioxus_desktop::{use_window, Config, LogicalSize, WindowBuilder};
+use dioxus::LaunchBuilder;
+use dioxus_router::prelude::*;
 
-#[derive(Clone, Routable, Debug, PartialEq)]
-pub enum Route {
-    #[route("/auth")]
-    Auth {},
-    #[layout(Main)]
-    #[redirect("/", || Route::Home {})]
-    #[route("/home")]
-    Home {},
-    #[route("/mods_and_packs")]
-    ModsAndPacks {},
-    #[route("/settings")]
-    Settings {},
-    #[route("/cloud")]
-    Cloud {},
-    #[route("/new")]
-    New {},
-}
-
-#[component]
-fn Root() -> Element {
-    let is_authenticated = use_signal(|| false);
-
-    provide_context(AuthState { is_authenticated: is_authenticated.clone() });
-
-    rsx! {
-        Router::<Route> {}
-    }
-}
-
-pub fn main() {
+fn main() {
     let size = LogicalSize::new(1280.0, 832.0);
 
     let config = Config::default().with_window(
@@ -52,11 +18,57 @@ pub fn main() {
             .with_title("Dream Launcher")
             .with_inner_size(size)
             .with_min_inner_size(size)
-            .with_max_inner_size(size)
             .with_resizable(false),
     );
 
     LaunchBuilder::new()
         .with_cfg(config)
-        .launch(Root);
+        .launch(ModeSelector);
+}
+
+#[component]
+fn ModeSelector() -> Element {
+    let mut mode = use_signal(|| None::<bool>);
+    let window = use_window();
+
+    match *mode.read() {
+        None => rsx! {
+            div {
+                style: "display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh;",
+                h2 { "What do you want to launch?" }
+                div {
+                    style: "display: flex; gap: 24px; margin-top: 24px;",
+                    button {
+                        style: "padding: 12px 32px; font-size: 1.1rem;",
+                        onclick: move |_| mode.set(Some(true)),
+                        "UI indev"
+                    }
+                    button {
+                        style: "padding: 12px 32px; font-size: 1.1rem;",
+                        onclick: move |_| mode.set(Some(false)),
+                        "CLI indev"
+                    }
+                }
+            }
+        },
+        Some(true) => rsx! { AppRoot {} },
+        Some(false) => {
+            use_effect({
+                let _window = window.clone();
+                move || {
+                    std::thread::spawn(|| {
+                        let _ = creeper::creeper::main();
+                    });
+                }
+            });
+            rsx!({})
+        }
+    }
+}
+
+#[component]
+fn AppRoot() -> Element {
+    let is_authenticated = use_signal(|| false);
+    provide_context(application::auth::auth_context::AuthState { is_authenticated: is_authenticated.clone() });
+    rsx! { Router::<Route> {} }
 }
