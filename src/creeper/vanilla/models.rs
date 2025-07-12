@@ -3,12 +3,12 @@ use std::collections::HashMap;
 
 /// Minecraft models for handling version manifests, version details, and asset indices.
 /// These structs are used to deserialize JSON data from the Minecraft API.
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct VersionManifest {
     pub versions: Vec<VersionInfo>,
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Serialize)]
 pub struct VersionInfo {
     pub id: String,
     pub url: String,
@@ -42,7 +42,7 @@ pub struct AssetIndex {
 
 #[derive(Deserialize)]
 pub struct Library {
-    #[allow (dead_code)]
+    #[allow(dead_code)]
     pub name: String,
     pub downloads: Option<LibraryDownloads>,
     pub natives: Option<HashMap<String, String>>,
@@ -86,8 +86,6 @@ pub struct Rule {
 
 #[derive(Deserialize)]
 pub struct OsRule {
-    #[allow (dead_code)]
+    #[allow(dead_code)]
     pub name: Option<String>,
-    pub version: Option<String>,
-    pub arch: Option<String>,
 }

@@ -7,6 +7,7 @@ use std::error::Error;
 use std::io::{self, Write};
 use std::path::Path;
 use std::time::Instant;
+use tokio::fs;
 use tokio::io::{AsyncBufReadExt, BufReader};
 use tokio::process::{Child, Command};
 use tokio::try_join;
@@ -71,6 +72,27 @@ pub async fn main() -> Result<(), Box<dyn Error>> {
     Ok(())
 }
 
+async fn fetch_version_manifest(
+    downloader: &Downloader,
+    _fs: &FileSystem,
+) -> Result<VersionManifest, Box<dyn Error>> {
+    let cache_path = Path::new(".cache/version_manifest.json");
+    if cache_path.exists() {
+        let content = fs::read_to_string(&cache_path).await?;
+        let manifest: VersionManifest = serde_json::from_str(&content)?;
+        println!("Loaded version manifest from cache");
+        Ok(manifest)
+    } else {
+        let manifest_url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
+        println!("Fetching version manifest from {}", manifest_url);
+        let manifest: VersionManifest = downloader.get_json(manifest_url).await?;
+        println!("Version manifest fetched, caching it...");
+        fs::create_dir_all(".cache").await.ok();
+        fs::write(&cache_path, serde_json::to_string(&manifest)?).await?;
+        Ok(manifest)
+    }
+}
+
 async fn start_minecraft(
     downloader: &Downloader,
     java_manager: &JavaManager,
@@ -78,6 +100,15 @@ async fn start_minecraft(
     minecraft_dir: &Path,
     version: &str,
 ) -> Result<String, Box<dyn Error>> {
+    // Create necessary directories asynchronously
+    fs::create_dir_all(&minecraft_dir.join("versions"))
+        .await
+        .ok();
+    fs::create_dir_all(&minecraft_dir.join("libraries"))
+        .await
+        .ok();
+    fs::create_dir_all(".cache").await.ok();
+
     // Start the timer to measure launch time
     let start_time = Instant::now();
 
@@ -94,11 +125,8 @@ async fn start_minecraft(
         }
     };
 
-    let manifest_url = "https://launchermeta.mojang.com/mc/game/version_manifest.json";
-
-    println!("Fetching version manifest from {}", manifest_url);
-    let manifest: VersionManifest = downloader.get_json(manifest_url).await?;
-    println!("Version manifest fetched");
+    // Cache manifest, to not download it every time
+    let manifest = fetch_version_manifest(downloader, fs).await?;
 
     let version_info = manifest
         .versions
@@ -116,7 +144,9 @@ async fn start_minecraft(
     let libraries_dir = minecraft_dir.join("libraries");
     let client_jar_path = version_dir.join(format!("{}.jar", version));
 
-    let client_jar_fut = if !fs.exists(&client_jar_path) {
+    let client_jar_needed = !fs.exists(&client_jar_path);
+
+    let client_jar_fut = if client_jar_needed {
         Some(downloader.download_file_if_not_exists(
             &version_details.downloads.client.url,
             &client_jar_path,
@@ -132,12 +162,10 @@ async fn start_minecraft(
         downloader.download_libraries(&version_details.libraries, &libraries_dir, &version_dir);
     let assets_fut = downloader.download_assets(&version_details.asset_index, minecraft_dir);
 
-    if let Some(fut) = client_jar_fut {
-        try_join!(fut, libs_fut, assets_fut)?;
-        println!("Client downloaded");
-    } else {
-        try_join!(libs_fut, assets_fut)?;
-    }
+    let _ = match client_jar_fut {
+        Some(fut) => try_join!(fut, libs_fut, assets_fut)?,
+        None => try_join!(async { Ok(()) }, libs_fut, assets_fut)?,
+    };
 
     println!("Building classpath...");
     let classpath = fs.build_classpath(&libraries_dir, &client_jar_path)?;

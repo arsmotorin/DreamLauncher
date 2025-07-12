@@ -46,7 +46,7 @@ impl JavaConfig {
                 // Add window size arguments to force windowed mode and visible window
                 game_args.push(("--width".to_string(), "854".to_string()));
                 game_args.push(("--height".to_string(), "480".to_string()));
-                
+
                 // Enable software OpenGL for older versions
                 jvm_args.push("-Dorg.lwjgl.opengl.Display.allowSoftwareOpenGL=true".to_string());
             }

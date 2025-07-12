@@ -9,6 +9,7 @@ dependencies = [
  "dioxus",
  "dioxus-desktop",
  "dioxus-router",
+ "flate2",
  "futures",
  "glob",
  "hyper 0.14.32",
